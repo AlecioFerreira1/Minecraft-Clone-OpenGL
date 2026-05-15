@@ -1,0 +1,1 @@
+gcc src/main.c src/glad.c src/engine/core/game_app.c src/engine/window/window.c src/engine/input/input.c src/engine/platform/platform.c src/engine/graphics/shader.c src/utils/utils.c src/engine/graphics/mesh.c -I include -L C:/mingw64/lib -lglfw3 -lopengl32 -lgdi32 -o mcclone.exe
