@@ -17,38 +17,60 @@ void gameApp_init(GameApp* app) {
 
 void gameApp_run(GameApp* app) {
   float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f, 0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+    0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+    -0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
   };
 
-  GLuint VBO, VAO;  
-
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
-
-  glGenBuffers(1, &VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  Mesh mesh = mesh_create(vertices, 3, 6 * sizeof(float), GL_STATIC_DRAW);
   
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, mesh.stride, (void *)0);
+  glEnableVertexAttribArray(ATTR_POSITION);
+
+  glVertexAttribPointer(ATTR_COLOR, 3, GL_FLOAT, GL_FALSE, mesh.stride, (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(ATTR_COLOR);
+
   glBindVertexArray(0);
 
   GLuint shader = shader_create(
     "assets/shaders/vertex.glsl", "assets/shaders/fragment.glsl"
   );
 
-  while(!glfwWindowShouldClose(app->window)){
+  float x = 0.00f, y = 0.0f;
+  int loc = glGetUniformLocation(shader, "offset");
+
+  while(!glfwWindowShouldClose(app->window)) {
     glfwPollEvents();
     input_process_key(app->window);
+
+    if(glfwGetKey(app->window, GLFW_KEY_A) == GLFW_PRESS){
+      x -= 0.01f;
+      printf("x: %f\n", x);
+    }
+
+    if(glfwGetKey(app->window, GLFW_KEY_D) == GLFW_PRESS){
+      x += 0.01f;
+      printf("x: %f\n", x);
+    }
+
+    if(glfwGetKey(app->window, GLFW_KEY_W) == GLFW_PRESS){
+      y += 0.01f;
+      printf("y: %f\n", x);
+    }
+
+    if(glfwGetKey(app->window, GLFW_KEY_S) == GLFW_PRESS){
+      y -= 0.01f;
+      printf("y: %f\n", x);
+    }
 
     glClearColor(1.f, 1.f, 1.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(shader);
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glUniform3f(loc, x, y, 0.0f);
+
+    glBindVertexArray(mesh.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, mesh.numVertices);
 
     glfwSwapBuffers(app->window);
   }

@@ -7,6 +7,7 @@
 #include "../input/input.h"
 #include "../window/window.h"
 #include "../graphics/shader.h"
+#include "../graphics/mesh.h"
 #include "../../utils/utils.h"
 
 typedef struct {
