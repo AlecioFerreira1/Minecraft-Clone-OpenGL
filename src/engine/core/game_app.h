@@ -8,7 +8,9 @@
 #include "../window/window.h"
 #include "../graphics/shader.h"
 #include "../graphics/mesh.h"
-#include "../../utils/utils.h"
+#include "../shape/espace/cube.h"
+
+#include "../math/mat4.h"
 
 typedef struct {
     GLFWwindow* window;

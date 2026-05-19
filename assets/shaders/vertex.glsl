@@ -4,10 +4,11 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 
 out vec3 vColor;
-uniform vec3 offset;
+uniform mat4 model;
+uniform mat4 view;
 
 void main()
 {
-  gl_Position = vec4(aPos + offset, 1.0);
+  gl_Position = view * model * vec4(aPos, 1.0);
   vColor = aColor;
 }
