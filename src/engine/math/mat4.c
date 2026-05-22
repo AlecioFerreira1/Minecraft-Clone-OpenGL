@@ -81,3 +81,22 @@ Mat4 mat4_mul(Mat4 a, Mat4 b) {
 
   return res;
 }
+
+Mat4 mat4_lookAt(Vec3 eye, Vec3 forward, Vec3 right, Vec3 up) {
+  Mat4 view = mat4_identity();
+
+  view.data[0] = right.x;
+  view.data[1] = up.x;
+  view.data[2] = -forward.x;
+  view.data[4] = right.y;
+  view.data[5] = up.y;
+  view.data[6] = -forward.y;
+  view.data[8] = right.z;
+  view.data[9] = up.z;
+  view.data[10] = -forward.z;
+  view.data[12] = -vec3_dot(right, eye);
+  view.data[13] = -vec3_dot(up, eye);
+  view.data[14] = vec3_dot(forward, eye);
+
+  return view;
+}

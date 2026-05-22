@@ -6,14 +6,18 @@
 #include "../platform/platform.h"
 #include "../input/input.h"
 #include "../window/window.h"
-#include "../graphics/shader.h"
-#include "../graphics/mesh.h"
-#include "../shape/espace/cube.h"
 
+#include "../graphics/shader/shader.h"
+#include "../graphics/mesh/mesh.h"
+#include "../graphics/mesh/primitives/cube.h"
 #include "../math/mat4.h"
+#include "../scene/scene.h"
+#include "../renderer/renderer.h"
 
 typedef struct {
-    GLFWwindow* window;
+  GLFWwindow* window;
+  Scene scene;
+  Renderer renderer;
 } GameApp;
 
 void gameApp_init(GameApp* app);
