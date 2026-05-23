@@ -5,14 +5,14 @@ static const float CONVERT_TO_RADIANS = 0.01745329251f;
 Camera camera_create() {
   Camera camera;
 
-  camera.position = (Vec3) {0.f, 0.f, 0.f};
+  camera.position = (Vec3) {0.f, 1.f, 0.f};
   camera.yaw = 0.f;
   camera.pitch = 0.f;
   camera.forward = (Vec3) {0.f, 0.f, -1.f};
   camera.right = (Vec3) {1.f, 0.f, 0.f};
   camera.up = (Vec3) {0.f, 1.f, 0.f};
   camera.sensitivity = 0.1;
-  camera.speed = 0.01;
+  camera.speed = 0.03;
   camera.fov = 90 * CONVERT_TO_RADIANS;
   camera.near = 0.1;
   camera.far = 1000;

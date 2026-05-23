@@ -23,3 +23,5 @@ typedef struct {
 void gameApp_init(GameApp* app);
 void gameApp_run(GameApp* app);
 void gameApp_destroy(GameApp* app);
+static void fix_window_pos(GLFWwindow* window, int width, int height);
+static void generate_example_terrain(Scene* scene, Mesh* cube);

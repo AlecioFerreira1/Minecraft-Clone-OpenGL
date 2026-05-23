@@ -12,31 +12,39 @@ void input_process_key(GLFWwindow* window, Camera* camera) {
 }
 
 static void handle_camera(GLFWwindow* window, Camera* camera) {
+  const Vec3 moveForward = vec3_normalize((Vec3){
+    camera->forward.x, 0.f, camera->forward.z
+  }); 
+
+  const Vec3 moveRight = vec3_normalize((Vec3){
+    camera->right.x, 0.f, camera->right.z
+  }); 
+
   if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
     camera->position = vec3_sub(
       camera->position, 
-      vec3_scale(camera->right, camera->speed)
+      vec3_scale(moveRight, camera->speed)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
     camera->position = vec3_sum(
       camera->position, 
-      vec3_scale(camera->right, camera->speed)
+      vec3_scale(moveRight, camera->speed)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
     camera->position = vec3_sum(
       camera->position, 
-      vec3_scale(camera->forward, camera->speed)
+      vec3_scale(moveForward, camera->speed)
     );  
   }
 
   if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
     camera->position = vec3_sub(
       camera->position, 
-      vec3_scale(camera->forward, camera->speed)
+      vec3_scale(moveForward, camera->speed)
     );
   }
 
@@ -57,7 +65,7 @@ static void handle_camera(GLFWwindow* window, Camera* camera) {
   if(glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS){
     camera->yaw = 0.f;
     camera->pitch = 0.f;
-    camera->position = (Vec3){0.f, 0.f, -1.f};
+    camera->position = (Vec3) {0.f, 0.f, 0.f};
   }
 }
 

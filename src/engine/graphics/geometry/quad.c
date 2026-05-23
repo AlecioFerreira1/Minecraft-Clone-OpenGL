@@ -27,13 +27,25 @@ float* quad_gen_vertices(float width, float height, Vec3 axis, Color color) {
     v3 = (Vec3){axis.x * (width / 2), -(width / 2), (height / 2)};
   }
 
-  push_vertex(vertices, &index, v0, color);
-  push_vertex(vertices, &index, v1, color);
-  push_vertex(vertices, &index, v2, color);
+  if(axis.y == -1 || axis.x == 1 || axis.z == 1){
+    push_vertex(vertices, &index, v0, color);
+    push_vertex(vertices, &index, v1, color);
+    push_vertex(vertices, &index, v2, color);
 
-  push_vertex(vertices, &index, v2, color);
-  push_vertex(vertices, &index, v3, color);
-  push_vertex(vertices, &index, v0, color);
+    push_vertex(vertices, &index, v2, color);
+    push_vertex(vertices, &index, v3, color);
+    push_vertex(vertices, &index, v0, color);
+  }
+
+  if(axis.y == 1 || axis.x == -1 || axis.z == -1){
+    push_vertex(vertices, &index, v2, color);
+    push_vertex(vertices, &index, v1, color);
+    push_vertex(vertices, &index, v0, color);
+
+    push_vertex(vertices, &index, v0, color);
+    push_vertex(vertices, &index, v3, color);
+    push_vertex(vertices, &index, v2, color);
+  }
 
   return vertices;  
 }

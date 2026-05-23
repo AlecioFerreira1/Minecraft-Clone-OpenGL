@@ -4,7 +4,7 @@
 #include "../math/mat4.h"
 
 typedef struct {
-  Vec3 position;
+  Vec3 translate;
   Vec3 rotation;
   Vec3 scale;
 } Transform;

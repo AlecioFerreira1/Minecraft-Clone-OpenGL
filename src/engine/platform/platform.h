@@ -7,3 +7,4 @@
 
 void platform_setup_glfw();
 void platform_setup_glad();
+void platform_setup_OpenGL_configs(int width, int height);
