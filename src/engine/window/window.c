@@ -24,3 +24,10 @@ void window_destroy() {
 static void framebuffer_size_callback(GLFWwindow* window, int w, int h) {
   glViewport(0, 0, w, h);
 }
+
+float window_get_aspect_ratio(GLFWwindow* window) {
+  int width, height;
+  glfwGetFramebufferSize(window, &width, &height);
+
+  return (float) (width / height);
+}

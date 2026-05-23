@@ -23,8 +23,8 @@ void gameApp_run(GameApp* app) {
   app->scene = scene_create();
 
   Color color[6] = {
-    pallete[COLOR_RED], pallete[COLOR_GREEN], pallete[COLOR_ORANGE],
-    pallete[COLOR_LIGHT_GREEN], pallete[COLOR_BLUE], pallete[COLOR_GRAY],  
+    pallete[COLOR_LIGHT_GREEN], pallete[COLOR_BROWN], pallete[COLOR_BROWN],
+    pallete[COLOR_BROWN], pallete[COLOR_BROWN], pallete[COLOR_BROWN],
   };
 
   Mesh cube = cube_create(0.6, &color);
@@ -50,10 +50,11 @@ void gameApp_run(GameApp* app) {
   while(!glfwWindowShouldClose(app->window)) {
     glfwPollEvents();
     input_process_key(app->window, &app->scene.camera);
-    camera_update(&app->scene.camera);
+    camera_update(&app->scene.camera, window_get_aspect_ratio(app->window));
 
     renderer_begin(&app->renderer);
     renderer_set_view(&app->renderer, app->scene.camera.view);
+    renderer_set_projection(&app->renderer, app->scene.camera.projection);
 
     for(int i = 0; i < app->scene.numEntities; ++i){
       Mat4 model = transform_get_model_matrix(&app->scene.entities[i].transform);

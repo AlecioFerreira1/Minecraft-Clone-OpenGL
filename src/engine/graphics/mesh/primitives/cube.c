@@ -3,14 +3,14 @@
 Mesh cube_create(float size, Color (*color)[6]) {
   float vertices[216];
   
-  float* faceUp = quad_gen_vertices(size, size, (Vec3){0, 0, -1}, (*color)[0]);
-  float* faceBottom = quad_gen_vertices(size, size, (Vec3){0, 0, 1}, (*color)[5]);
+  float* faceUp = quad_gen_vertices(size, size, (Vec3){0, 1, 0}, (*color)[0]);
+  float* faceBottom = quad_gen_vertices(size, size, (Vec3){0, -1, 0}, (*color)[5]);
 
-  float* faceSide1 = quad_gen_vertices(size, size, (Vec3){0, -1, 0}, (*color)[1]);
-  float* faceSide2 = quad_gen_vertices(size, size, (Vec3){0, 1, 0}, (*color)[2]);
+  float* faceSide1 = quad_gen_vertices(size, size, (Vec3){1, 0, 0}, (*color)[1]);
+  float* faceSide2 = quad_gen_vertices(size, size, (Vec3){-1, 0, 0}, (*color)[2]);
 
-  float* faceSide3 = quad_gen_vertices(size, size, (Vec3){-1, 0, 0}, (*color)[3]);
-  float* faceSide4 = quad_gen_vertices(size, size, (Vec3){1, 0, 0}, (*color)[4]);
+  float* faceSide3 = quad_gen_vertices(size, size, (Vec3){0, 0, 1}, (*color)[3]);
+  float* faceSide4 = quad_gen_vertices(size, size, (Vec3){0, 0, -1}, (*color)[4]);
 
   memcpy(vertices, faceUp, 36 * sizeof(float));
   memcpy(vertices + 36, faceBottom, 36 * sizeof(float));

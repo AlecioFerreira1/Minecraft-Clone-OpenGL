@@ -43,14 +43,14 @@ static void handle_camera(GLFWwindow* window, Camera* camera) {
   if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
      camera->position = vec3_sum(
       camera->position, 
-      vec3_scale(WORD_UP, camera->speed)
+      vec3_scale(WORLD_UP, camera->speed)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
     camera->position = vec3_sub(
       camera->position, 
-      vec3_scale(WORD_UP, camera->speed)
+      vec3_scale(WORLD_UP, camera->speed)
     );
   }
 
@@ -63,7 +63,7 @@ static void handle_camera(GLFWwindow* window, Camera* camera) {
 
 void mouse_callback(GLFWwindow* window, double xPos, double yPos) {
   float xOffset = xPos - lastX;
-  float yOffset = yPos - lastY;
+  float yOffset = lastY - yPos;
 
   lastX = (float) xPos;
   lastY = (float) yPos;

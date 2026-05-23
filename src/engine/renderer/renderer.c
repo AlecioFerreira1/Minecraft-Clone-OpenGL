@@ -9,6 +9,7 @@ void renderer_init(Renderer* renderer, GLFWwindow* window) {
   renderer->shader = shader;
   renderer->locModel = glGetUniformLocation(renderer->shader, "model"); 
   renderer->locView = glGetUniformLocation(renderer->shader, "view");
+  renderer->locProj = glGetUniformLocation(renderer->shader, "projection");
 }
 
 void renderer_begin(Renderer* renderer) {
@@ -26,6 +27,10 @@ void renderer_draw_mesh(Renderer* renderer, Mesh* mesh, Mat4 model) {
 
 void renderer_set_view(Renderer* renderer, Mat4 view) {
   glUniformMatrix4fv(renderer->locView, 1, GL_FALSE, view.data);
+}
+
+void renderer_set_projection(Renderer* renderer, Mat4 projection) {
+  glUniformMatrix4fv(renderer->locProj, 1, GL_FALSE, projection.data);
 }
 
 void renderer_end(Renderer* renderer) {
