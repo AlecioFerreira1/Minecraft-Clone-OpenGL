@@ -6,6 +6,6 @@
 
 #include "../scene/camera/camera.h"
 
-void input_process_key(GLFWwindow* window, Camera* camera);
-static void handle_camera(GLFWwindow* window, Camera* camera);
+void input_process_key(GLFWwindow* window, Camera* camera, float dt);
+static void handle_camera(GLFWwindow* window, Camera* camera, float dt);
 void mouse_callback(GLFWwindow* window, double xPos, double yPos);

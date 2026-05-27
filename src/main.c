@@ -1,11 +1,11 @@
-#include "engine/core/game_app.h"
+#include "engine/core/engine.h"
 
 int main() {
-  GameApp gameApp;
+  Engine engine;
 
-  gameApp_init(&gameApp);
-  gameApp_run(&gameApp);
-  gameApp_destroy(&gameApp);
+  engine_init(&engine);
+  engine_run(&engine);
+  engine_destroy(&engine);
 
   return 0;
 }

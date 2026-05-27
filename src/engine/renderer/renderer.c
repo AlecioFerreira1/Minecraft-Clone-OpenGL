@@ -10,6 +10,7 @@ void renderer_init(Renderer* renderer, GLFWwindow* window) {
   renderer->locModel = glGetUniformLocation(renderer->shader, "model"); 
   renderer->locView = glGetUniformLocation(renderer->shader, "view");
   renderer->locProj = glGetUniformLocation(renderer->shader, "projection");
+  renderer->locTextAtlas = glGetUniformLocation(renderer->shader, "uTexture");
 }
 
 void renderer_begin(Renderer* renderer) {
@@ -35,4 +36,10 @@ void renderer_set_projection(Renderer* renderer, Mat4 projection) {
 
 void renderer_end(Renderer* renderer) {
   glfwSwapBuffers(renderer->window);
+}
+
+void renderer_draw_texture_from_atlas(Renderer* renderer, TextureAtlas* texture) {
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture->id);
+  glUniform1i(renderer->locTextAtlas, 0);
 }

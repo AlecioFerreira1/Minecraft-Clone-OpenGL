@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <stdlib.h>
 
 typedef struct {
   GLuint VAO;
@@ -16,4 +17,5 @@ typedef enum {
   ATTR_NORMAL = 3
 } VertexAttribute;
 
-Mesh mesh_create(float* vertices, int numVertices, size_t stride, GLenum usage);
+Mesh* mesh_create(float* vertices, int numVertices, size_t stride, GLenum usage);
+void mesh_destroy(Mesh* mesh);

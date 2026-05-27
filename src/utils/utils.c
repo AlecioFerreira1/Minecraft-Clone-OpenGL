@@ -1,6 +1,6 @@
 #include "utils.h"
 
-char* readFile(const char* filePath){
+char* readFile(const char* filePath) {
   FILE* file = fopen(filePath, "rb");
 
   if(file == NULL) return NULL;

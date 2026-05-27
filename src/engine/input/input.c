@@ -1,17 +1,17 @@
 #include "input.h"
-#include "../core/game_app.h"
+#include "../core/engine.h"
 
 static float lastX = 0.f;
 static float lastY = 0.f;
 
-void input_process_key(GLFWwindow* window, Camera* camera) {
+void input_process_key(GLFWwindow* window, Camera* camera, float dt) {
   if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 
-  handle_camera(window, camera);
+  handle_camera(window, camera, dt);
 }
 
-static void handle_camera(GLFWwindow* window, Camera* camera) {
+static void handle_camera(GLFWwindow* window, Camera* camera, float dt) {
   const Vec3 moveForward = vec3_normalize((Vec3){
     camera->forward.x, 0.f, camera->forward.z
   }); 
@@ -23,42 +23,42 @@ static void handle_camera(GLFWwindow* window, Camera* camera) {
   if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
     camera->position = vec3_sub(
       camera->position, 
-      vec3_scale(moveRight, camera->speed)
+      vec3_scale(moveRight, camera->speed * dt)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
     camera->position = vec3_sum(
       camera->position, 
-      vec3_scale(moveRight, camera->speed)
+      vec3_scale(moveRight, camera->speed * dt)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
     camera->position = vec3_sum(
       camera->position, 
-      vec3_scale(moveForward, camera->speed)
+      vec3_scale(moveForward, camera->speed * dt)
     );  
   }
 
   if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
     camera->position = vec3_sub(
       camera->position, 
-      vec3_scale(moveForward, camera->speed)
+      vec3_scale(moveForward, camera->speed * dt)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
      camera->position = vec3_sum(
       camera->position, 
-      vec3_scale(WORLD_UP, camera->speed)
+      vec3_scale(WORLD_UP, camera->speed * dt)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
     camera->position = vec3_sub(
       camera->position, 
-      vec3_scale(WORLD_UP, camera->speed)
+      vec3_scale(WORLD_UP, camera->speed * dt)
     );
   }
 
@@ -76,7 +76,7 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos) {
   lastX = (float) xPos;
   lastY = (float) yPos;
 
-  GameApp* app = glfwGetWindowUserPointer(window);
+  Engine* engine = glfwGetWindowUserPointer(window);
 
-  camera_process_mouse(&app->scene.camera, xOffset, yOffset);
+  camera_process_mouse(&engine->scene.camera, xOffset, yOffset);
 }

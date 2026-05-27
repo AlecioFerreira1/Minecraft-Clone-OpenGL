@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "../../math/vec3.h"
-#include "../color/color.h"
+#include "uv_rect.h"
 
-float* quad_gen_vertices(float width, float height, Vec3 plane, Color color);
-static void push_vertex(float* v, int* i, Vec3 value, Color c);
+float* quad_gen_vertices(float width, float height, Vec3 plane, UVrect rect);
+static void push_vertex(float* vertex, int* i, Vec3 value, float u, float v);

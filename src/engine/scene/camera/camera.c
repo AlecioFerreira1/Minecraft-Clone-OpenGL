@@ -12,7 +12,7 @@ Camera camera_create() {
   camera.right = (Vec3) {1.f, 0.f, 0.f};
   camera.up = (Vec3) {0.f, 1.f, 0.f};
   camera.sensitivity = 0.1;
-  camera.speed = 0.03;
+  camera.speed = 5;
   camera.fov = 90 * CONVERT_TO_RADIANS;
   camera.near = 0.1;
   camera.far = 1000;

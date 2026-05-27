@@ -6,6 +6,7 @@
 #include "../graphics/mesh/mesh.h"
 #include "../math/mat4.h"
 #include "../graphics/shader/shader.h"
+#include "../graphics/texture/texture.h"
 
 typedef struct {
   GLuint shader;
@@ -13,6 +14,7 @@ typedef struct {
   GLint locModel;
   GLint locView;
   GLint locProj;
+  GLint locTextAtlas;
 } Renderer;
 
 void renderer_init(Renderer* renderer, GLFWwindow* window);
@@ -21,3 +23,4 @@ void renderer_draw_mesh(Renderer* renderer, Mesh* mesh, Mat4 model);
 void renderer_set_view(Renderer* renderer, Mat4 view);
 void renderer_set_projection(Renderer* renderer, Mat4 projection);
 void renderer_end(Renderer* renderer);
+void renderer_draw_texture_from_atlas(Renderer* renderer, TextureAtlas* texture);
