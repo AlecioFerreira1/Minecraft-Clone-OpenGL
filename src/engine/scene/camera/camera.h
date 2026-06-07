@@ -3,12 +3,11 @@
 #include "../../math/vec3.h"
 #include "../../math/mat4.h"
 #include "../../math/projection.h"
+#include "../../config/camera_config.h"
 
 static const Vec3 WORLD_UP = {0, 1, 0};
 
 typedef struct {
-  float sensitivity;
-  float speed;
   Vec3 position;
   float yaw, pitch;
   Vec3 forward; 
@@ -16,8 +15,9 @@ typedef struct {
   Vec3 right;
   Mat4 view;
   float near, far;
-  float aspect, fov;
+  float aspect;
   Mat4 projection;
+  CameraConfig config;
 } Camera;   
 
 Camera camera_create();

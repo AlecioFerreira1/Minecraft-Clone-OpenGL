@@ -6,12 +6,12 @@ static const char REHASHING_DECREASE = 'D';
 void hash_map_create(HashMap* table, size_t size) {
   table->quant = 0;
   table->capacity = size;
-  table->elements = (Entry*) malloc(sizeof(Entry) * table->capacity);
+  table->entries = (Entry*) malloc(sizeof(Entry) * table->capacity);
   
   for(size_t i = 0; i < table->capacity; ++i){
-    table->elements[i].key = NULL;
-    table->elements[i].value = NULL;
-    table->elements[i].state = HASH_MAP_ENTRY_STATE_EMPTY;
+    table->entries[i].key = NULL;
+    table->entries[i].value = NULL;
+    table->entries[i].state = HASH_MAP_ENTRY_STATE_EMPTY;
   }
 }
 
@@ -26,8 +26,8 @@ void hash_map_insert(HashMap* table, char* key, void* value) {
   size_t tries = 1;
   bool keyAlreadyUsed = false;
 
-  while(table->elements[index].key != NULL){
-    if(strcmp(table->elements[index].key, key) == 0){
+  while(table->entries[index].key != NULL){
+    if(strcmp(table->entries[index].key, key) == 0){
       keyAlreadyUsed = true;
       break; 
     }
@@ -36,13 +36,19 @@ void hash_map_insert(HashMap* table, char* key, void* value) {
     tries++;
   }
 
-  if(!keyAlreadyUsed){
-    table->quant++;
+  if(keyAlreadyUsed) {
+    table->entries[index].value = value;
+    return;
   }
 
-  table->elements[index].key = key;
-  table->elements[index].value = value;
-  table->elements[index].state = HASH_MAP_ENTRY_STATE_OCCUPIED;
+  char* newKey = malloc(strlen(key) + 1);
+    
+  strcpy(newKey, key);
+  
+  table->entries[index].key = newKey;
+  table->entries[index].value = value;
+  table->entries[index].state = HASH_MAP_ENTRY_STATE_OCCUPIED;
+  table->quant++;
 }
 
 long long hash_map_search(HashMap* table, char* key) {
@@ -50,15 +56,19 @@ long long hash_map_search(HashMap* table, char* key) {
   size_t tries = 1;
   bool keyFound = false;
 
-  if(table->elements[index].key != NULL){
-    keyFound = strcmp(table->elements[index].key, key) == 0;
+  if(table->entries[index].key != NULL){
+    keyFound = strcmp(table->entries[index].key, key) == 0;
   }
 
   while(tries < table->capacity){
-    if(keyFound || table->elements[index].state == HASH_MAP_ENTRY_STATE_EMPTY) break;
+    if(keyFound || table->entries[index].state == HASH_MAP_ENTRY_STATE_EMPTY) break;
 
     index = hash_func(index, tries, table->capacity);
-    keyFound = strcmp(table->elements[index].key, key) == 0;
+
+    if(table->entries[index].key != NULL){
+      keyFound = strcmp(table->entries[index].key, key) == 0;
+    }
+    
     tries++;
   }
 
@@ -74,20 +84,22 @@ void* hash_map_get_value(HashMap* table, char* key) {
 
   if(index == -1) return NULL;
 
-  return table->elements[index].value;
+  return table->entries[index].value;
 }
 
 void hash_map_delete_key(HashMap* table, char* key) {
-  int index = hash_map_search(table, key);
+  long long int index = hash_map_search(table, key);
 
   if(index == -1) {
     printf("DELETION ERROR. KEY NOT FOUND! KEY: %s", key);
     return;
   }
 
-  table->elements[index].key = NULL;
-  table->elements[index].state = HASH_MAP_ENTRY_STATE_DELETED;
-  table->elements[index].value = NULL;
+  free(table->entries[index].key);
+
+  table->entries[index].key = NULL;
+  table->entries[index].state = HASH_MAP_ENTRY_STATE_DELETED;
+  table->entries[index].value = NULL;
   table->quant--;
 
   if(((float) table->quant / (float) table->capacity) < 0.25f){
@@ -121,14 +133,21 @@ static int hash_func(int key, int k, size_t size) {
 
 static void copy_table(HashMap* dstTable, HashMap* srcTable) {
   for(size_t i = 0; i < srcTable->capacity; ++i){
-    if(srcTable->elements[i].key != NULL){
-      hash_map_insert(dstTable, srcTable->elements[i].key, srcTable->elements[i].value);
+    if(srcTable->entries[i].key != NULL){
+      hash_map_insert(dstTable, srcTable->entries[i].key, srcTable->entries[i].value);
     }
   }
 }
 
 void hash_map_destroy(HashMap* table) {
-  free(table->elements);
+  for(size_t i = 0; i < table->capacity; ++i){
+    if(table->entries[i].key != NULL){
+      free(table->entries[i].key);
+      table->entries[i].key = NULL;
+    }
+  }
+
+  free(table->entries);
 }
 
 static unsigned long hash_string(char* str) {

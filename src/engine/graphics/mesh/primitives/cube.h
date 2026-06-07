@@ -14,4 +14,4 @@ typedef struct {
   UVrect back;
 } CubeUVSet;
 
-Mesh* cube_create(float size, CubeUVSet uvSet);
+Mesh* cube_create(Vec3 pos, float size, CubeUVSet uvSet);

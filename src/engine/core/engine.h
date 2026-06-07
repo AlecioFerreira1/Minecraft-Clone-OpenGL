@@ -6,11 +6,12 @@
 #include "../platform/platform.h"
 #include "../input/input.h"
 #include "../window/window.h"
-
 #include "../graphics/shader/shader.h"
 #include "../graphics/mesh/mesh.h"
-#include "../graphics/mesh/primitives/cube.h"
+#include "../config/engine_config.h"
+#include "../debug/debug_info.h"
 
+#include "../graphics/mesh/primitives/cube.h"
 #include "../math/mat4.h"
 #include "../scene/scene.h"
 #include "../renderer/renderer.h"
@@ -22,13 +23,15 @@ typedef struct {
   Scene scene;
   Renderer renderer;
   ResourceManager* resourceManager;
+  EngineConfig config;
+  DebugInfo debug;
+
   float dt;
   float lastFrame;
 } Engine;
 
 void engine_init(Engine* app);
 void engine_run(Engine* app);
-void engine_destroy(Engine* app);
-static void fix_window_pos(GLFWwindow* window, int width, int height);
-static void generate_example_terrain(Engine* engine);
+void engine_end(Engine* app);
+static void center_window(GLFWwindow* window, int width, int height);
 static void update_delta_time(Engine* engine);

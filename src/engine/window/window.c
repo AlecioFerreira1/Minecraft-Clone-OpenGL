@@ -1,6 +1,6 @@
 #include "window.h"
 
-GLFWwindow* window_create(const char* title, int width, int height) {
+GLFWwindow* window_create(const char* title, int width, int height, bool vsync) {
   GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
 
   if(window == NULL){
@@ -10,6 +10,7 @@ GLFWwindow* window_create(const char* title, int width, int height) {
   }
 
   glfwMakeContextCurrent(window);
+  glfwSwapInterval(vsync);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -29,5 +30,5 @@ float window_get_aspect_ratio(GLFWwindow* window) {
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);
 
-  return (float) (width / height);
+  return (float) width / (float) height;
 }

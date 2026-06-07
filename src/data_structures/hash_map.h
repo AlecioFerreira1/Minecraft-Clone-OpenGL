@@ -21,7 +21,7 @@ typedef struct {
 typedef struct {
   size_t capacity;
   size_t quant; 
-  Entry* elements;
+  Entry* entries;
 } HashMap;
 
 void hash_map_create(HashMap* table, size_t size);

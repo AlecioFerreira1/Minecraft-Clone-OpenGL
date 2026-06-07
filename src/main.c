@@ -5,7 +5,7 @@ int main() {
 
   engine_init(&engine);
   engine_run(&engine);
-  engine_destroy(&engine);
+  engine_end(&engine);
 
   return 0;
 }

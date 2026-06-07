@@ -23,42 +23,42 @@ static void handle_camera(GLFWwindow* window, Camera* camera, float dt) {
   if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
     camera->position = vec3_sub(
       camera->position, 
-      vec3_scale(moveRight, camera->speed * dt)
+      vec3_scale(moveRight, camera->config.speed * dt)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
     camera->position = vec3_sum(
       camera->position, 
-      vec3_scale(moveRight, camera->speed * dt)
+      vec3_scale(moveRight, camera->config.speed * dt)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
     camera->position = vec3_sum(
       camera->position, 
-      vec3_scale(moveForward, camera->speed * dt)
+      vec3_scale(moveForward, camera->config.speed * dt)
     );  
   }
 
   if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
     camera->position = vec3_sub(
       camera->position, 
-      vec3_scale(moveForward, camera->speed * dt)
+      vec3_scale(moveForward, camera->config.speed * dt)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
      camera->position = vec3_sum(
       camera->position, 
-      vec3_scale(WORLD_UP, camera->speed * dt)
+      vec3_scale(WORLD_UP, camera->config.speed * dt)
     );
   }
 
   if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
     camera->position = vec3_sub(
       camera->position, 
-      vec3_scale(WORLD_UP, camera->speed * dt)
+      vec3_scale(WORLD_UP, camera->config.speed * dt)
     );
   }
 
