@@ -17,7 +17,7 @@ typedef struct {
   uint32_t tileSize;
 } TextureAtlas;
 
-Texture* texture_load(const char* path);
-TextureAtlas* texture_load_atlas(const char* path, uint32_t tileSize);
-void texture_destroy(Texture* texture);
-void texture_atlas_destroy(TextureAtlas* textureAtlas);
+Texture *texture_load(const char *path);
+TextureAtlas *texture_load_atlas(const char *path, uint32_t tileSize);
+void texture_destroy(Texture *texture);
+void texture_atlas_destroy(TextureAtlas *textureAtlas);

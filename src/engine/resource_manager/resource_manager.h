@@ -8,10 +8,10 @@
 typedef struct {
   HashMap textures;
   HashMap materials;
-  TextureAtlas* textureAtlas;
+  TextureAtlas *textureAtlas;
 } ResourceManager;
 
-ResourceManager* resource_manager_create();
-void resource_manager_destroy(ResourceManager* resourceManager);
-void resource_manager_add_texture(ResourceManager* resourceManager, char* key, Texture* texture);
-// void resource_manager_add_material(ResourceManager* resourceManager, const char* key, Material* material);
+ResourceManager *resource_manager_create();
+void resource_manager_destroy(ResourceManager *resourceManager);
+void resource_manager_add_texture(ResourceManager *resourceManager, char *key, Texture *texture);
+// void resource_manager_add_material(ResourceManager *resourceManager, const char *key, Material *material);

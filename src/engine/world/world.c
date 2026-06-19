@@ -6,28 +6,31 @@ World world_create(WorldType worldType) {
   world.config = world_config_get();
   world.worldGenerator = world_generator_create(world.config.seed, worldType);
   world.type = worldType;
+  world.destroyBudget = 4;
+  world.destroyQueue = priority_queue_create(sizeof(ChunkJob), chunk_job_compare);
   
   hash_map_create(&world.chunks, 10);
 
   return world;
 }
 
-void world_destroy(World* world) {
+void world_destroy(World *world) {
   hash_map_destroy(&world->chunks);
+  priority_queue_destroy(&world->destroyQueue);
 }
 
-void world_update(World* world, Vec3 playerPos) {
-  float renderDistanceEndBlock = (float) (CHUNK_SIZE * (world->config.renderDistance + 1));
-  float renderDistanceStartBlock = renderDistanceEndBlock * -1.f;
+void world_update(World *world, Vec3 playerPos) {
+  int renderDistanceEndChunk = world->config.renderDistance;
+  int renderDistanceStartChunk = renderDistanceEndChunk * -1;
   char chunkName[128];
 
   WorldTypeConfig worldTypeConfig = world_type_get_config(world->type);
+  ChunkCoords playerChunk = world_coords_to_chunk_coords(playerPos);
 
-  for(float x = renderDistanceEndBlock; x >= renderDistanceStartBlock; x -= (float) CHUNK_SIZE){
-    for(float y = (float) worldTypeConfig.minHeigth; y < (float) worldTypeConfig.maxHeigth; y += (float) CHUNK_SIZE){
-      for(float z = renderDistanceEndBlock; z >= renderDistanceStartBlock; z -= (float)CHUNK_SIZE){
-        Vec3 currentChunkPos = (Vec3){x + playerPos.x, y, z + playerPos.z};
-        ChunkCoords chunkCoords = world_coords_to_chunk_coords(currentChunkPos);
+  for(int x = renderDistanceEndChunk; x >= renderDistanceStartChunk; --x){
+    for(int y = worldTypeConfig.minHeigth; y < worldTypeConfig.maxHeigth; y += CHUNK_SIZE){
+      for(int z = renderDistanceEndChunk; z >= renderDistanceStartChunk; --z){
+        ChunkCoords chunkCoords = {x + playerChunk.x, y / CHUNK_SIZE, z + playerChunk.z};
 
         snprintf(
           chunkName, sizeof(chunkName), 
@@ -36,28 +39,28 @@ void world_update(World* world, Vec3 playerPos) {
         );
 
         if(!chunk_already_loaded(&world->chunks, chunkName)) {
-          hash_map_insert(&world->chunks, chunkName, chunk_create(currentChunkPos, &world->worldGenerator));
+          hash_map_insert(&world->chunks, chunkName, chunk_create(chunkCoords, &world->worldGenerator));
           world_mark_dirty(world, chunkCoords); 
         } 
       }
     }
   } 
 
-  // world_discard_chunks_out_of_range(world, playerPos, renderDistanceStartBlock, renderDistanceEndBlock); 
+  world_discard_chunks_out_of_range(world, playerChunk, renderDistanceStartChunk, renderDistanceEndChunk); 
 }
 
-static void world_discard_chunks_out_of_range(World* world, Vec3 playerPos, float renderDistanceStart, float renderDistanceEnd) {
+static void world_discard_chunks_out_of_range(World *world, ChunkCoords playerChunk, int renderDistanceStart, int renderDistanceEnd) {
+  char chunkName[128];
+
   for(size_t i = 0; i < world->chunks.capacity; ++i) {
     if(world->chunks.entries[i].key != NULL) {
-      Chunk* chunk = (Chunk*) world->chunks.entries[i].value;
+      Chunk *chunk = (Chunk *) world->chunks.entries[i].value;
 
-      if(((float) chunk->coords.x) < renderDistanceStart + playerPos.x || 
-        ((float) chunk->coords.z) < renderDistanceStart + playerPos.z ||
-        ((float) chunk->coords.x) > renderDistanceEnd + playerPos.x || 
-        ((float) chunk->coords.z) > renderDistanceEnd + playerPos.z
+      if((chunk->coords.x) < (renderDistanceStart + playerChunk.x) || 
+        (chunk->coords.z) < (renderDistanceStart + playerChunk.z) ||
+        (chunk->coords.x) > (renderDistanceEnd + playerChunk.x) ||
+        (chunk->coords.z) > (renderDistanceEnd + playerChunk.z)
       ) {
-        char chunkName[128];
-
         snprintf(
           chunkName, sizeof(chunkName), 
           "chunk_%d_%d_%d", 
@@ -65,23 +68,38 @@ static void world_discard_chunks_out_of_range(World* world, Vec3 playerPos, floa
         );
   
         hash_map_delete_key(&world->chunks, chunkName);
-        free(chunk);
+
+        int distanceToplayer = 
+          (playerChunk.x - chunk->coords.x) * (playerChunk.x - chunk->coords.x) +
+          (playerChunk.y - chunk->coords.y) * (playerChunk.x - chunk->coords.y) +
+          (playerChunk.z - chunk->coords.z) * (playerChunk.z - chunk->coords.z)
+        ;
+
+        ChunkJob chunkJob = {distanceToplayer, chunk->coords};
+
+        priority_queue_push(&world->destroyQueue, &chunkJob);
       }
     }
   }
+
+  int8_t budget = world->destroyBudget;
+
+  while(budget > 0 && !priority_queue_is_empty(&world->destroyQueue)){
+    ChunkJob *chunkJob = (ChunkJob *) priority_queue_peek(&world->destroyQueue);
+    Chunk *chunk = world_get_chunk(&world->chunks, chunkJob->coords);
+
+    if(chunk != NULL) {
+      chunk_destroy(chunk);
+    }
+
+    priority_queue_pop(&world->destroyQueue);
+    budget--;
+  }
 }
 
-uint16_t world_block_at(HashMap* chunks, Vec3 worldCoords) {
-  char chunkName[128];
+uint16_t world_block_at(HashMap *chunks, Vec3 worldCoords) {
   const ChunkCoords chunkCoords = world_coords_to_chunk_coords(worldCoords);
-
-  snprintf(
-    chunkName, sizeof(chunkName), 
-    "chunk_%d_%d_%d", 
-    chunkCoords.x, chunkCoords.y, chunkCoords.z
-  );
-
-  Chunk* chunk = (Chunk*) hash_map_get_value(chunks, chunkName);
+  Chunk *chunk = world_get_chunk(chunks, chunkCoords);
 
   if(chunk == NULL) return BLOCK_AIR;
 
@@ -92,11 +110,11 @@ uint16_t world_block_at(HashMap* chunks, Vec3 worldCoords) {
   ;
 }
 
-static bool chunk_already_loaded(HashMap* chunks, char* chunkName) {
+static bool chunk_already_loaded(HashMap *chunks, char *chunkName) {
   return hash_map_search(chunks, chunkName) != -1;
 }
 
-static void world_mark_dirty(World* world, ChunkCoords chunkCoords) {
+static void world_mark_dirty(World *world, ChunkCoords chunkCoords) {
   ChunkCoords neighBoursChunkCoords[6] = {
     {chunkCoords.x, chunkCoords.y + 1, chunkCoords.z},
     {chunkCoords.x, chunkCoords.y - 1, chunkCoords.z},
@@ -106,17 +124,21 @@ static void world_mark_dirty(World* world, ChunkCoords chunkCoords) {
     {chunkCoords.x, chunkCoords.y, chunkCoords.z - 1},
   };
 
-  char chunkName[128];
-
   for(uint8_t i = 0; i < 6; ++i) {
-    snprintf(
-      chunkName, sizeof(chunkName), 
-      "chunk_%d_%d_%d", 
-      neighBoursChunkCoords[i].x, neighBoursChunkCoords[i].y, neighBoursChunkCoords[i].z
-    );
-
-    Chunk* chunk = (Chunk*) hash_map_get_value(&world->chunks, chunkName);
+    Chunk *chunk = world_get_chunk(&world->chunks, neighBoursChunkCoords[i]);
 
     if(chunk != NULL) chunk->dirty = true;
   }
+}
+
+Chunk *world_get_chunk(HashMap *chunks, ChunkCoords chunkCoords) {
+  char chunkName[128];
+
+  snprintf(
+    chunkName, sizeof(chunkName), 
+    "chunk_%d_%d_%d", 
+    chunkCoords.x, chunkCoords.y, chunkCoords.z
+  );
+
+  return (Chunk *) hash_map_get_value(chunks, chunkName);
 }

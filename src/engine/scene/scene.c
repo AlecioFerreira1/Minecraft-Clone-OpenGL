@@ -11,17 +11,17 @@ Scene scene_create() {
   return scene;
 }
 
-void scene_attach_world_renderer(Scene* scene, TextureAtlas* textures) {
+void scene_attach_world_renderer(Scene *scene, TextureAtlas *textures) {
   scene->worldRenderer = world_renderer_create(&scene->world.chunks, textures);
 }
 
-void scene_destroy(Scene* scene) {
+void scene_destroy(Scene *scene) {
   scene->numEntities = 0;
   free(scene->entities);
   world_destroy(&scene->world);
 }
 
-void scene_add_entity(Scene* scene, Entity entity) {
+void scene_add_entity(Scene *scene, Entity entity) {
   Entity* newEntity = realloc(scene->entities, (scene->numEntities + 1) * sizeof(Entity));
 
   if(newEntity != NULL) {
@@ -33,9 +33,9 @@ void scene_add_entity(Scene* scene, Entity entity) {
   printf("Erro ao adicionar uma entidade!\nId da entidade: %d", (scene->entities));
 }
 
-void scene_update(Scene* scene, Renderer* renderer) {
+void scene_update(Scene *scene, Renderer *renderer) {
   world_update(&scene->world, scene->camera.position);
-  world_renderer_render(&scene->worldRenderer, renderer);
+  world_renderer_render(&scene->worldRenderer, renderer, scene->camera.position);
 
   for(int i = 0; i < scene->numEntities; ++i){
     Mat4 model = transform_get_model_matrix(&scene->entities[i].transform);

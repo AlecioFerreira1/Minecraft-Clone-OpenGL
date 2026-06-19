@@ -21,5 +21,5 @@ typedef struct {
 } Camera;   
 
 Camera camera_create();
-void camera_update(Camera* camera, float aspectRatio);
-void camera_process_mouse(Camera* camera, float xOffset, float yOffset);
+void camera_update(Camera *camera, float aspectRatio);
+void camera_process_mouse(Camera *camera, float xOffset, float yOffset);

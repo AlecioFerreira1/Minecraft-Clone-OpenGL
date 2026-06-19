@@ -9,4 +9,4 @@ typedef struct {
   Vec3 scale;
 } Transform;
 
-Mat4 transform_get_model_matrix(Transform* transform);
+Mat4 transform_get_model_matrix(Transform *transform);

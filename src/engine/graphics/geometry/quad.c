@@ -1,7 +1,7 @@
 #include "quad.h"
 
-float* quad_gen_vertices(Vec3 pos, float width, float height, Vec3 axis, UVrect rect) {
-  float* vertices = (float*) calloc(30, sizeof(float));
+float *quad_gen_vertices(Vec3 pos, float width, float height, Vec3 axis, UVrect rect) {
+  float *vertices = (float*) calloc(30, sizeof(float));
   int index = 0;
 
   Vec2 topLeft = {0.f, 0.f};
@@ -67,12 +67,12 @@ float* quad_gen_vertices(Vec3 pos, float width, float height, Vec3 axis, UVrect 
   return vertices;  
 }
 
-static void push_vertex(float* vertex, int* i, Vec3 value, float u, float v) {
-  vertex[(*i)++] = value.x;
-  vertex[(*i)++] = value.y;
-  vertex[(*i)++] = value.z;
-  vertex[(*i)++] = u;
-  vertex[(*i)++] = v;
+static void push_vertex(float *vertices, int *i, Vec3 value, float u, float v) {
+  vertices[(*i)++] = value.x;
+  vertices[(*i)++] = value.y;
+  vertices[(*i)++] = value.z;
+  vertices[(*i)++] = u;
+  vertices[(*i)++] = v;
 }
 
 /**

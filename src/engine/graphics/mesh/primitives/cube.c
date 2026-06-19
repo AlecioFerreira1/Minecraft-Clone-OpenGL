@@ -1,16 +1,16 @@
 #include "cube.h"
 
-Mesh* cube_create(Vec3 pos, float size, CubeUVSet uvSet) {
+Mesh *cube_create(Vec3 pos, float size, CubeUVSet uvSet) {
   float vertices[180];
   
-  float* faceUp = quad_gen_vertices(pos, size, size, (Vec3){0, 1, 0}, uvSet.top);
-  float* faceBottom = quad_gen_vertices(pos, size, size, (Vec3){0, -1, 0}, uvSet.bottom);
+  float *faceUp = quad_gen_vertices(pos, size, size, (Vec3){0, 1, 0}, uvSet.top);
+  float *faceBottom = quad_gen_vertices(pos, size, size, (Vec3){0, -1, 0}, uvSet.bottom);
 
-  float* faceLeft = quad_gen_vertices(pos, size, size, (Vec3){-1, 0, 0}, uvSet.left);
-  float* faceRight = quad_gen_vertices(pos, size, size, (Vec3){1, 0, 0}, uvSet.right);
+  float *faceLeft = quad_gen_vertices(pos, size, size, (Vec3){-1, 0, 0}, uvSet.left);
+  float *faceRight = quad_gen_vertices(pos, size, size, (Vec3){1, 0, 0}, uvSet.right);
 
-  float* faceFront = quad_gen_vertices(pos, size, size, (Vec3){0, 0, -1}, uvSet.front);
-  float* faceBack = quad_gen_vertices(pos, size, size, (Vec3){0, 0, 1}, uvSet.back);
+  float *faceFront = quad_gen_vertices(pos, size, size, (Vec3){0, 0, -1}, uvSet.front);
+  float *faceBack = quad_gen_vertices(pos, size, size, (Vec3){0, 0, 1}, uvSet.back);
 
   memcpy(vertices, faceUp, 30 * sizeof(float));
   memcpy(vertices + 30, faceBottom, 30 * sizeof(float));

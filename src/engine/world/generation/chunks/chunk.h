@@ -12,11 +12,11 @@
 typedef struct {
   uint16_t blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
   bool dirty;
-  Mesh* mesh;
+  Mesh *mesh;
   ChunkCoords coords;
 } Chunk;
 
-Chunk* chunk_create(Vec3 worldCoords, WorldGenerator* generator);
-void chunk_destroy(Chunk* chunk);
+Chunk* chunk_create(ChunkCoords chunkCoords, WorldGenerator *generator);
+void chunk_destroy(Chunk *chunk);
 ChunkCoords world_coords_to_chunk_coords(Vec3 worldCoords);
 Vec3 chunk_coords_to_world_coords(ChunkCoords chunkCoords);

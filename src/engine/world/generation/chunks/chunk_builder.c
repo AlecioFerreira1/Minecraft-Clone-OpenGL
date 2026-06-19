@@ -2,17 +2,19 @@
 #include "../../registry/block_registry.h"
 #include "../../world.h"
 
-ChunkBuilder chunk_builder_create(HashMap* chunks, TextureAtlas* textures) {
+ChunkBuilder chunk_builder_create(HashMap *chunks, TextureAtlas *textures) {
   ChunkBuilder chunkBuilder;
 
   chunkBuilder.chunks = chunks;
   chunkBuilder.textures = textures;
+  chunkBuilder.rebuildBudget = 4;
+  chunkBuilder.rebuildQueue = priority_queue_create(sizeof(ChunkJob), chunk_job_compare);
 
   return chunkBuilder;
 }
 
-static void chunk_builder_build_chunk_mesh(ChunkBuilder* chunkBuilder, Chunk* chunk) {
-  float* vertices = NULL;
+static void chunk_builder_build_chunk_mesh(ChunkBuilder *chunkBuilder, Chunk *chunk) {
+  float *vertices = NULL;
   size_t floatCount = 0;
   Vec3 chunkPosOnWorld = chunk_coords_to_world_coords(chunk->coords);
   const float cubeSize = 1.f;
@@ -24,11 +26,7 @@ static void chunk_builder_build_chunk_mesh(ChunkBuilder* chunkBuilder, Chunk* ch
 
         Vec3 blockPosOnWorld = vec3_sum(
           chunkPosOnWorld, 
-          (Vec3){
-            .x = (float)x, 
-            .y = (float)y, 
-            .z = (float)z
-          }
+          (Vec3){.x = (float)x, .y = (float)y, .z = (float)z}
         );
 
         Block topNeighbour = world_block_at(
@@ -107,12 +105,15 @@ static void chunk_builder_build_chunk_mesh(ChunkBuilder* chunkBuilder, Chunk* ch
     }
   }
 
+  mesh_destroy(chunk->mesh);
+  
   chunk->mesh = mesh_create(vertices, floatCount / 5, 5 * sizeof(float), GL_STATIC_DRAW);
+  
   free(vertices);
 }
 
-static void add_face_vertices_to_chunk(float** chunkVertices, size_t* nValues, float* quad) {
-  float* moreSpaceToNewQuad = realloc(*chunkVertices, ((*nValues) + 30) * sizeof(float));
+static void add_face_vertices_to_chunk(float** chunkVertices, size_t *nValues, float *quad) {
+  float *moreSpaceToNewQuad = realloc(*chunkVertices, ((*nValues) + 30) * sizeof(float));
 
   if(moreSpaceToNewQuad != NULL) {
     *chunkVertices = moreSpaceToNewQuad;
@@ -123,15 +124,40 @@ static void add_face_vertices_to_chunk(float** chunkVertices, size_t* nValues, f
   free(quad);
 }
 
-void chunk_builder_update_chunks(ChunkBuilder* chunkBuilder) {
+//ERRO AO TENTAR RECRIAR CHUNKS QUE ESTÃO NA FILA DE REMOÇÃO.
+void chunk_builder_update_chunks(ChunkBuilder *chunkBuilder, Vec3 playerPos) {
+  ChunkCoords playerChunk = world_coords_to_chunk_coords(playerPos);
+
   for(size_t i = 0; i < chunkBuilder->chunks->capacity; ++i) {
     if(chunkBuilder->chunks->entries[i].key != NULL) {
-      Chunk* chunk = (Chunk*) chunkBuilder->chunks->entries[i].value;
+      Chunk *chunk = (Chunk *) chunkBuilder->chunks->entries[i].value;
 
       if(chunk->dirty) {
-        chunk_builder_build_chunk_mesh(chunkBuilder, chunk);
+        int distanceToplayer = 
+          (playerChunk.x - chunk->coords.x) * (playerChunk.x - chunk->coords.x) +
+          (playerChunk.y - chunk->coords.y) * (playerChunk.x - chunk->coords.y) +
+          (playerChunk.z - chunk->coords.z) * (playerChunk.z - chunk->coords.z)
+        ;
+
+        ChunkJob chunkJob = {distanceToplayer, chunk->coords};  
+
+        priority_queue_push(&chunkBuilder->rebuildQueue, &chunkJob);
         chunk->dirty = false;
       }
     }
+  }
+  
+  int8_t budget = chunkBuilder->rebuildBudget;
+
+  while(budget > 0 && !priority_queue_is_empty(&chunkBuilder->rebuildQueue)) {
+    ChunkJob *chunkJob = (ChunkJob *) priority_queue_peek(&chunkBuilder->rebuildQueue);
+    Chunk *chunk = world_get_chunk(chunkBuilder->chunks, chunkJob->coords);
+  
+    if(chunk != NULL) {
+      chunk_builder_build_chunk_mesh(chunkBuilder, chunk);
+    }
+
+    priority_queue_pop(&chunkBuilder->rebuildQueue);
+    budget--;
   }
 }

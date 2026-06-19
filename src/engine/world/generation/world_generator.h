@@ -15,4 +15,4 @@ typedef struct {
 } WorldGenerator;
 
 WorldGenerator world_generator_create(uint32_t seed, WorldType worldType);
-uint16_t world_generator_generate_block(WorldGenerator* generator, ChunkCoords chunkCoords, uint8_t localChunkX, uint8_t localChunkY, uint8_t localChunkZ);
+uint16_t world_generator_generate_block(WorldGenerator *generator, ChunkCoords chunkCoords, uint8_t localChunkX, uint8_t localChunkY, uint8_t localChunkZ);

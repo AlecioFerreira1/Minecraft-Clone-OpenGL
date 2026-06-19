@@ -11,14 +11,14 @@
 
 typedef struct {
   Camera camera;
-  Entity* entities;
+  Entity *entities;
   int numEntities;
   World world;
   WorldRenderer worldRenderer;
 } Scene;
 
 Scene scene_create();
-void scene_destroy(Scene* scene);
-void scene_add_entity(Scene* scene, Entity entity);
-void scene_update(Scene* scene, Renderer* renderer);
-void scene_attach_world_renderer(Scene* scene, TextureAtlas* textures);
+void scene_destroy(Scene *scene);
+void scene_add_entity(Scene *scene, Entity entity);
+void scene_update(Scene *scene, Renderer *renderer);
+void scene_attach_world_renderer(Scene *scene, TextureAtlas *textures);

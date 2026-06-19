@@ -1,11 +1,11 @@
 #include "chunk.h"
 
-Chunk* chunk_create(Vec3 worldCoords, WorldGenerator* generator) {
-  Chunk* chunk = malloc(sizeof(Chunk));
+Chunk *chunk_create(ChunkCoords chunkCoords, WorldGenerator *generator) {
+  Chunk *chunk = malloc(sizeof(Chunk));
 
   chunk->mesh = NULL;
   chunk->dirty = true;
-  chunk->coords = world_coords_to_chunk_coords(worldCoords);
+  chunk->coords = chunkCoords;
 
   for(uint8_t x = 0; x < CHUNK_SIZE; ++x){
     for(uint8_t y = 0; y < CHUNK_SIZE; ++y){
@@ -18,10 +18,9 @@ Chunk* chunk_create(Vec3 worldCoords, WorldGenerator* generator) {
   return chunk;
 }
 
-void chunk_destroy(Chunk* chunk) {
+void chunk_destroy(Chunk *chunk) {
   mesh_destroy(chunk->mesh);
   free(chunk); 
-  chunk = NULL;
 }
 
 ChunkCoords world_coords_to_chunk_coords(Vec3 worldCoords) {

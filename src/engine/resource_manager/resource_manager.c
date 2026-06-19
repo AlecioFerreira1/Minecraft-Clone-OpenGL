@@ -1,7 +1,7 @@
 #include "resource_manager.h"
 
-ResourceManager* resource_manager_create() {
-  ResourceManager* resourceManager = malloc(sizeof(ResourceManager));
+ResourceManager *resource_manager_create() {
+  ResourceManager *resourceManager = malloc(sizeof(ResourceManager));
 
   hash_map_create(&resourceManager->textures, 5);
   hash_map_create(&resourceManager->materials, 1);
@@ -11,7 +11,7 @@ ResourceManager* resource_manager_create() {
   return resourceManager;
 }
 
-void resource_manager_destroy(ResourceManager* resourceManager) {
+void resource_manager_destroy(ResourceManager *resourceManager) {
   for(int i = 0; i < resourceManager->textures.capacity; ++i){
     if(resourceManager->textures.entries[i].state == HASH_MAP_ENTRY_STATE_OCCUPIED){
       texture_destroy((Texture *) resourceManager->textures.entries[i].value);
@@ -32,7 +32,7 @@ void resource_manager_destroy(ResourceManager* resourceManager) {
   free(resourceManager);
 }
 
-void resource_manager_add_texture(ResourceManager* resourceManager, char* key, Texture* texture) {
+void resource_manager_add_texture(ResourceManager *resourceManager, char *key, Texture *texture) {
   if(hash_map_search(&resourceManager->textures, key) == -1){
     hash_map_insert(&resourceManager->textures, key, texture);
     return;
@@ -41,7 +41,7 @@ void resource_manager_add_texture(ResourceManager* resourceManager, char* key, T
   texture_destroy(texture);
 }
 
-// void resource_manager_add_material(ResourceManager* resourceManager, const char* key, Material* material) {
+// void resource_manager_add_material(ResourceManager *resourceManager, const char* key, Material* material) {
 //   if(hash_map_search(&resourceManager->materials, key) == -1){
 //     hash_map_insert(&resourceManager->materials, key, material);
 //     return;

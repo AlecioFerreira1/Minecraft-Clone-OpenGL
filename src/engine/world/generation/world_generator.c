@@ -10,7 +10,7 @@ WorldGenerator world_generator_create(uint32_t seed, WorldType worldType) {
   return generator;
 }
 
-uint16_t world_generator_generate_block(WorldGenerator* generator, ChunkCoords chunkCoords, uint8_t localChunkX, uint8_t localChunkY, uint8_t localChunkZ) {
+uint16_t world_generator_generate_block(WorldGenerator *generator, ChunkCoords chunkCoords, uint8_t localChunkX, uint8_t localChunkY, uint8_t localChunkZ) {
   const WorldTypeConfig worldTypeConfig = world_type_get_config(generator->worldType);
   const uint32_t yTarget = ((uint32_t) floor(chunk_coords_to_world_coords(chunkCoords).y)) + localChunkY;
   

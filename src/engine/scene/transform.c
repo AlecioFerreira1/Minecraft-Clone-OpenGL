@@ -1,6 +1,6 @@
 #include "transform.h"
 
-Mat4 transform_get_model_matrix(Transform* transform) {
+Mat4 transform_get_model_matrix(Transform *transform) {
   Mat4 T = mat4_translate(transform->translate);
   Mat4 Rx = mat4_rotate_x(transform->rotation.x);
   Mat4 Ry = mat4_rotate_y(transform->rotation.y);

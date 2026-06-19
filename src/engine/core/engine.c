@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <math.h>
 
-void engine_init(Engine* engine) {
+void engine_init(Engine *engine) {
   platform_setup_glfw();
 
   engine->config = engine_config_get();
@@ -26,7 +26,7 @@ void engine_init(Engine* engine) {
   engine->resourceManager = resource_manager_create();
 }
 
-void engine_run(Engine* engine) {
+void engine_run(Engine *engine) {
   renderer_init(&engine->renderer, engine->window);
   scene_attach_world_renderer(&engine->scene, engine->resourceManager->textureAtlas);
 
@@ -48,15 +48,15 @@ void engine_run(Engine* engine) {
   }
 }
 
-void engine_end(Engine* engine) {
+void engine_end(Engine *engine) {
   scene_destroy(&engine->scene);
   resource_manager_destroy(engine->resourceManager);
   window_destroy();
 }
 
 static void center_window(GLFWwindow* window, int windowWidth, int windowHeight) {
-  GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-  const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+  GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+  const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 
   windowWidth = windowWidth > mode->width ? mode->width : windowWidth;
   windowHeight = windowHeight > mode->height ? mode->height : windowHeight; 
@@ -67,7 +67,7 @@ static void center_window(GLFWwindow* window, int windowWidth, int windowHeight)
   glfwSetWindowPos(window, x, y);   
 }
 
-static void update_delta_time(Engine* engine) {
+static void update_delta_time(Engine *engine) {
   engine->dt = glfwGetTime() - engine->lastFrame;
   engine->lastFrame = glfwGetTime();
 }

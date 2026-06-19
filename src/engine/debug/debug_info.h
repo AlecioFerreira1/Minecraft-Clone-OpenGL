@@ -8,4 +8,4 @@ typedef struct {
   int frameTime;
 } DebugInfo;
 
-void debug_info_display_logs(DebugInfo* debugInfo);
+void debug_info_display_logs(DebugInfo *debugInfo);

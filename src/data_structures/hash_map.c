@@ -15,7 +15,7 @@ void hash_map_create(HashMap* table, size_t size) {
   }
 }
 
-void hash_map_insert(HashMap* table, char* key, void* value) {
+void hash_map_insert(HashMap *table, char *key, void *value) {
   const float LOAD_FACTOR = 0.6f;
 
   if(((float) table->quant / (float) table->capacity) > LOAD_FACTOR){
@@ -41,7 +41,7 @@ void hash_map_insert(HashMap* table, char* key, void* value) {
     return;
   }
 
-  char* newKey = malloc(strlen(key) + 1);
+  char *newKey = malloc(strlen(key) + 1);
     
   strcpy(newKey, key);
   
@@ -51,7 +51,7 @@ void hash_map_insert(HashMap* table, char* key, void* value) {
   table->quant++;
 }
 
-long long hash_map_search(HashMap* table, char* key) {
+long long hash_map_search(HashMap *table, char *key) {
   size_t index = hash_string(key) % table->capacity;
   size_t tries = 1;
   bool keyFound = false;
@@ -79,7 +79,7 @@ long long hash_map_search(HashMap* table, char* key) {
   return -1;
 }
 
-void* hash_map_get_value(HashMap* table, char* key) {
+void *hash_map_get_value(HashMap *table, char *key) {
   long long index = hash_map_search(table, key);
 
   if(index == -1) return NULL;
@@ -87,11 +87,11 @@ void* hash_map_get_value(HashMap* table, char* key) {
   return table->entries[index].value;
 }
 
-void hash_map_delete_key(HashMap* table, char* key) {
+void hash_map_delete_key(HashMap* table, char *key) {
   long long int index = hash_map_search(table, key);
 
   if(index == -1) {
-    printf("DELETION ERROR. KEY NOT FOUND! KEY: %s", key);
+    printf("DELETION ERROR. KEY NOT FOUND! KEY: %s\n", key);
     return;
   }
 
@@ -107,7 +107,7 @@ void hash_map_delete_key(HashMap* table, char* key) {
   }
 }
 
-static void rehashing(HashMap* table, char option) {
+static void rehashing(HashMap *table, char option) {
   int size = 0;
 
   if(option == REHASHING_INCREASE){
@@ -131,7 +131,7 @@ static int hash_func(int key, int k, size_t size) {
   return ((key % size) + k) % size;
 }
 
-static void copy_table(HashMap* dstTable, HashMap* srcTable) {
+static void copy_table(HashMap *dstTable, HashMap *srcTable) {
   for(size_t i = 0; i < srcTable->capacity; ++i){
     if(srcTable->entries[i].key != NULL){
       hash_map_insert(dstTable, srcTable->entries[i].key, srcTable->entries[i].value);
@@ -139,7 +139,7 @@ static void copy_table(HashMap* dstTable, HashMap* srcTable) {
   }
 }
 
-void hash_map_destroy(HashMap* table) {
+void hash_map_destroy(HashMap *table) {
   for(size_t i = 0; i < table->capacity; ++i){
     if(table->entries[i].key != NULL){
       free(table->entries[i].key);
@@ -150,7 +150,7 @@ void hash_map_destroy(HashMap* table) {
   free(table->entries);
 }
 
-static unsigned long hash_string(char* str) {
+static unsigned long hash_string(char *str) {
   unsigned long hash = 5381;
 
   while(*str) {

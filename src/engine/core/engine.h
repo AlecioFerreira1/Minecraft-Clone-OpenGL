@@ -19,10 +19,10 @@
 #include "../world/registry/block_registry.h"
 
 typedef struct {
-  GLFWwindow* window;
+  GLFWwindow *window;
   Scene scene;
   Renderer renderer;
-  ResourceManager* resourceManager;
+  ResourceManager *resourceManager;
   EngineConfig config;
   DebugInfo debug;
 
@@ -30,8 +30,8 @@ typedef struct {
   float lastFrame;
 } Engine;
 
-void engine_init(Engine* app);
-void engine_run(Engine* app);
-void engine_end(Engine* app);
-static void center_window(GLFWwindow* window, int width, int height);
-static void update_delta_time(Engine* engine);
+void engine_init(Engine *engine);
+void engine_run(Engine *engine);
+void engine_end(Engine *engine);
+static void center_window(GLFWwindow *window, int width, int height);
+static void update_delta_time(Engine *engine);

@@ -1,6 +1,6 @@
 #include "shader.h"
 
-static GLuint compileShader(GLenum type, const char* source) {
+static GLuint compileShader(GLenum type, const char *source) {
   GLuint shader = glCreateShader(type);
 
   glShaderSource(shader, 1, &source, NULL);
@@ -52,9 +52,9 @@ static GLuint createShaderProgram(GLuint vertex, GLuint fragment) {
   return program;
 }
 
-GLuint shader_create(const char* vertexCodePath, const char* fragmentCodePath) {
-  char* vertexShaderCode = readFile(vertexCodePath);
-  char* fragmentShaderCode = readFile(fragmentCodePath);
+GLuint shader_create(const char *vertexCodePath, const char *fragmentCodePath) {
+  char *vertexShaderCode = readFile(vertexCodePath);
+  char *fragmentShaderCode = readFile(fragmentCodePath);
 
   GLuint vertex = compileShader(GL_VERTEX_SHADER, vertexShaderCode);
   GLuint fragment = compileShader(GL_FRAGMENT_SHADER, fragmentShaderCode);

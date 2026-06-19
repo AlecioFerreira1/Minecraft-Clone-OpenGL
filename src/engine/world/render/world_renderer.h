@@ -8,5 +8,5 @@ typedef struct {
   ChunkBuilder chunkBuilder;
 } WorldRenderer;
 
-WorldRenderer world_renderer_create(HashMap* chunks, TextureAtlas* textures);
-void world_renderer_render(WorldRenderer* worldRenderer, Renderer* renderer);
+WorldRenderer world_renderer_create(HashMap *chunks, TextureAtlas *textures);
+void world_renderer_render(WorldRenderer *worldRenderer, Renderer *renderer, Vec3 playerPos);

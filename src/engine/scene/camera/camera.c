@@ -3,7 +3,7 @@
 Camera camera_create() {
   Camera camera;
 
-  camera.position = (Vec3) {0.f, 0.f, 0.f};
+  camera.position = (Vec3) {7.5f, 100.f, 7.5f};
   camera.yaw = 0.f;
   camera.pitch = 0.f;
   camera.forward = (Vec3) {0.f, 0.f, -1.f};
@@ -16,7 +16,7 @@ Camera camera_create() {
   return camera;
 }
 
-void camera_update(Camera* camera, float aspectRatio) {
+void camera_update(Camera *camera, float aspectRatio) {
   camera->aspect = aspectRatio;
 
   camera->forward = (Vec3) {
@@ -37,7 +37,7 @@ void camera_update(Camera* camera, float aspectRatio) {
   );
 }
 
-void camera_process_mouse(Camera* camera, float xOffset, float yOffset) {
+void camera_process_mouse(Camera *camera, float xOffset, float yOffset) {
   camera->yaw += (xOffset * camera->config.sensitivity) * CONVERT_TO_RADIANS;
   camera->pitch += (yOffset * camera->config.sensitivity) * CONVERT_TO_RADIANS;
 
