@@ -42,6 +42,11 @@ void world_update(World *world, Vec3 playerPos) {
           hash_map_insert(&world->chunks, chunkName, chunk_create(chunkCoords, &world->worldGenerator));
           world_mark_dirty(world, chunkCoords); 
         } 
+
+        else{
+          Chunk *chunk = world_get_chunk(&world->chunks, chunkCoords);
+          chunk->state = CHUNK_STATE_ACTIVE;
+        }
       }
     }
   } 
@@ -50,30 +55,24 @@ void world_update(World *world, Vec3 playerPos) {
 }
 
 static void world_discard_chunks_out_of_range(World *world, ChunkCoords playerChunk, int renderDistanceStart, int renderDistanceEnd) {
-  char chunkName[128];
-
   for(size_t i = 0; i < world->chunks.capacity; ++i) {
     if(world->chunks.entries[i].key != NULL) {
       Chunk *chunk = (Chunk *) world->chunks.entries[i].value;
+
+      if(chunk->state != CHUNK_STATE_ACTIVE) continue;
 
       if((chunk->coords.x) < (renderDistanceStart + playerChunk.x) || 
         (chunk->coords.z) < (renderDistanceStart + playerChunk.z) ||
         (chunk->coords.x) > (renderDistanceEnd + playerChunk.x) ||
         (chunk->coords.z) > (renderDistanceEnd + playerChunk.z)
       ) {
-        snprintf(
-          chunkName, sizeof(chunkName), 
-          "chunk_%d_%d_%d", 
-          chunk->coords.x, chunk->coords.y, chunk->coords.z
-        );
-  
-        hash_map_delete_key(&world->chunks, chunkName);
-
         int distanceToplayer = 
           (playerChunk.x - chunk->coords.x) * (playerChunk.x - chunk->coords.x) +
-          (playerChunk.y - chunk->coords.y) * (playerChunk.x - chunk->coords.y) +
+          (playerChunk.y - chunk->coords.y) * (playerChunk.y - chunk->coords.y) +
           (playerChunk.z - chunk->coords.z) * (playerChunk.z - chunk->coords.z)
         ;
+
+        chunk->state = CHUNK_STATE_PENDING_UNLOAD;
 
         ChunkJob chunkJob = {distanceToplayer, chunk->coords};
 
@@ -83,12 +82,20 @@ static void world_discard_chunks_out_of_range(World *world, ChunkCoords playerCh
   }
 
   int8_t budget = world->destroyBudget;
+  char chunkName[128];
 
-  while(budget > 0 && !priority_queue_is_empty(&world->destroyQueue)){
+  while(budget > 0 && !priority_queue_is_empty(&world->destroyQueue)) {
     ChunkJob *chunkJob = (ChunkJob *) priority_queue_peek(&world->destroyQueue);
     Chunk *chunk = world_get_chunk(&world->chunks, chunkJob->coords);
 
-    if(chunk != NULL) {
+    if(chunk != NULL && chunk->state == CHUNK_STATE_PENDING_UNLOAD) {
+      snprintf(
+        chunkName, sizeof(chunkName),
+        "chunk_%d_%d_%d", 
+        chunk->coords.x, chunk->coords.y, chunk->coords.z
+      );
+
+      hash_map_delete_key(&world->chunks, chunkName);
       chunk_destroy(chunk);
     }
 

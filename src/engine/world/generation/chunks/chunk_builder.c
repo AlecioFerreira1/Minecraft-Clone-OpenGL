@@ -124,7 +124,6 @@ static void add_face_vertices_to_chunk(float** chunkVertices, size_t *nValues, f
   free(quad);
 }
 
-//ERRO AO TENTAR RECRIAR CHUNKS QUE ESTÃO NA FILA DE REMOÇÃO.
 void chunk_builder_update_chunks(ChunkBuilder *chunkBuilder, Vec3 playerPos) {
   ChunkCoords playerChunk = world_coords_to_chunk_coords(playerPos);
 
@@ -132,10 +131,10 @@ void chunk_builder_update_chunks(ChunkBuilder *chunkBuilder, Vec3 playerPos) {
     if(chunkBuilder->chunks->entries[i].key != NULL) {
       Chunk *chunk = (Chunk *) chunkBuilder->chunks->entries[i].value;
 
-      if(chunk->dirty) {
+      if(chunk->dirty && chunk->state == CHUNK_STATE_ACTIVE) {
         int distanceToplayer = 
           (playerChunk.x - chunk->coords.x) * (playerChunk.x - chunk->coords.x) +
-          (playerChunk.y - chunk->coords.y) * (playerChunk.x - chunk->coords.y) +
+          (playerChunk.y - chunk->coords.y) * (playerChunk.y - chunk->coords.y) +
           (playerChunk.z - chunk->coords.z) * (playerChunk.z - chunk->coords.z)
         ;
 
