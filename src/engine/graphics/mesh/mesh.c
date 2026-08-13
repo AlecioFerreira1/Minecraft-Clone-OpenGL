@@ -1,6 +1,6 @@
 #include "mesh.h"
 
-Mesh *mesh_create(float *vertices, int numVertices, size_t stride, GLenum usage) {
+Mesh *mesh_create(const Vertex *vertices, size_t numVertices, GLenum usage) {
   GLuint VAO, VBO;
 
   glGenVertexArrays(1, &VAO);
@@ -8,14 +8,18 @@ Mesh *mesh_create(float *vertices, int numVertices, size_t stride, GLenum usage)
 
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, numVertices * stride, vertices, usage);
+  glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), vertices, usage);
 
   Mesh *mesh = malloc(sizeof(Mesh));
-  *mesh = (Mesh) {VAO, VBO, numVertices, stride};
+  *mesh = (Mesh) {VAO, VBO, numVertices};
 
-  glVertexAttribPointer(ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, mesh->stride, (void *)0);
+  glVertexAttribPointer(ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, position));
   glEnableVertexAttribArray(ATTR_POSITION);
-  glVertexAttribPointer(ATTR_UV, 2, GL_FLOAT, GL_FALSE, mesh->stride, (void *)(3 * sizeof(float)));
+
+  glVertexAttribPointer(ATTR_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
+  glEnableVertexAttribArray(ATTR_NORMAL);
+
+  glVertexAttribPointer(ATTR_UV, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, uv));
   glEnableVertexAttribArray(ATTR_UV);
 
   return mesh;

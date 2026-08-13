@@ -3,19 +3,21 @@
 #include <glad/glad.h>
 #include <stdlib.h>
 
+#include "../../../data_structures/vector.h"
+#include "../geometry/vertex.h"
+
 typedef struct {
   GLuint VAO;
   GLuint VBO;
-  unsigned int numVertices;
-  size_t stride;
+  size_t numVertices;
 } Mesh;
 
-typedef enum {
+enum VertexAttribute {
   ATTR_POSITION = 0,
   ATTR_COLOR = 1,
   ATTR_UV = 2,
   ATTR_NORMAL = 3
-} VertexAttribute;
+};
 
-Mesh *mesh_create(float *vertices, int numVertices, size_t stride, GLenum usage);
+Mesh *mesh_create(const Vertex *vertices, size_t numVertices, GLenum usage);
 void mesh_destroy(Mesh *mesh);

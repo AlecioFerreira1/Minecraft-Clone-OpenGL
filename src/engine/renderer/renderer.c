@@ -38,8 +38,8 @@ void renderer_end(Renderer *renderer) {
   glfwSwapBuffers(renderer->window);
 }
 
-void renderer_draw_texture_from_atlas(Renderer *renderer, TextureAtlas *texture) {
+void renderer_draw_texture_from_atlas(Renderer *renderer, TextureAtlas *textureAtlas) {
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture->id);
+  glBindTexture(GL_TEXTURE_2D, textureAtlas->texture->id);
   glUniform1i(renderer->locTextAtlas, 0);
 }

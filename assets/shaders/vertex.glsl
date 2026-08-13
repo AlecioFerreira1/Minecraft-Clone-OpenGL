@@ -2,6 +2,7 @@
 
 layout (location = 0) in vec3 aPos;
 layout (location = 2) in vec2 aUv;
+layout (location = 3) in vec3 aNor;
 
 out vec2 vUv;
 uniform mat4 model;

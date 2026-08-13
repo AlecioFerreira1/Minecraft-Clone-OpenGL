@@ -3,10 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../../../config/world_config.h"
-#include "../../../graphics/mesh/mesh.h"
-#include "../../../math/vec3.h"
-#include "../world_generator.h"
+#include "../../config/world_config.h"
+#include "../../graphics/mesh/mesh.h"
+#include "../../math/vec3.h"
+#include "../generation/world_generator.h"
 #include "chunk_coords.h"
 
 typedef enum {

@@ -46,12 +46,8 @@ TextureAtlas *texture_load_atlas(const char *path, uint32_t tileSize) {
 
   TextureAtlas *textureAtlas = malloc(sizeof(TextureAtlas));
 
-  textureAtlas->id = texture->id;
-  textureAtlas->width = texture->width;
-  textureAtlas->height = texture->height;
+  textureAtlas->texture = texture;
   textureAtlas->tileSize = tileSize;
-
-  free(texture);
 
   return textureAtlas;
 }
@@ -65,7 +61,7 @@ void texture_destroy(Texture *texture) {
 
 void texture_atlas_destroy(TextureAtlas *textureAtlas) {
   if(textureAtlas != NULL) {
-    glDeleteTextures(1, &textureAtlas->id);
+    texture_destroy(textureAtlas->texture);
     free(textureAtlas);
   }
 }

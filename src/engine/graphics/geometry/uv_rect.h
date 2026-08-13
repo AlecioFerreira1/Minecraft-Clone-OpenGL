@@ -10,4 +10,4 @@ typedef struct {
   float h;
 } UVrect;
 
-UVrect uv_rect_convert(AtlasTile tile, TextureAtlas *texture);
+UVrect uv_rect_convert(AtlasTile tile, TextureAtlas *textureAtlas);

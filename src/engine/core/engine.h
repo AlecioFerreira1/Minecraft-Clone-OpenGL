@@ -16,7 +16,6 @@
 #include "../scene/scene.h"
 #include "../renderer/renderer.h"
 #include "../resource_manager/resource_manager.h"
-#include "../world/registry/block_registry.h"
 
 typedef struct {
   GLFWwindow *window;

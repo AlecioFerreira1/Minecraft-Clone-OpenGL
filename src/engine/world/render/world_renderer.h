@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../generation/chunks/chunk_builder.h"
+#include "../chunks/chunk_builder.h"
 #include "../../graphics/texture/texture.h"
 #include "../../renderer/renderer.h"
 

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../config/world_config.h"
-#include "generation/chunks/chunk.h"
+#include "chunks/chunk.h"
 #include "generation/world_generator.h"
 #include "../../data_structures/hash_map.h"
 #include "../../data_structures/priority_queue.h"
-#include "generation/chunks/chunk_job.h"
+#include "chunks/chunk_job.h"
 
 typedef struct {
   WorldConfig config;

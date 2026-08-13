@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "../../registry/block.h"
+#include "../../block/block.h"
 
 typedef enum {
   WORLD_TYPE_SUPERFLAT, 

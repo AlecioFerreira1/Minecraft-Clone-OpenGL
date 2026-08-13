@@ -3,9 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../../../data_structures/vector.h"
 #include "../../math/vec3.h"
 #include "../../math/vec2.h"
 #include "uv_rect.h"
+#include "vertex.h"
 
-float* quad_gen_vertices(Vec3 pos, float width, float height, Vec3 plane, UVrect rect);
-static void push_vertex(float *vertices, int *i, Vec3 value, float u, float v);
+Vector quad_gen_vertices(Vec3 pos, float width, float height, float depth, Vec3 normal, UVrect rect);
+static void push_vertex(Vector *vertices, Vec3 position, Vec3 normal, float u, float v);

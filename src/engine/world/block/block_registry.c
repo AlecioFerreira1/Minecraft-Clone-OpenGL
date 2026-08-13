@@ -1,5 +1,14 @@
 #include "block_registry.h"
 
+UVrect block_registry_get_uv_rect(Block block, Face face, TextureAtlas *textures) {
+  if(face == FACE_RIGHT) return uv_rect_convert(REGISTERED_BLOCKS[block].right, textures);
+  else if(face == FACE_LEFT) return uv_rect_convert(REGISTERED_BLOCKS[block].left, textures);
+  else if(face == FACE_TOP) return uv_rect_convert(REGISTERED_BLOCKS[block].top, textures);
+  else if(face == FACE_BOTTOM) return uv_rect_convert(REGISTERED_BLOCKS[block].bottom, textures);
+  else if(face == FACE_FRONT) return uv_rect_convert(REGISTERED_BLOCKS[block].front, textures);
+  else return uv_rect_convert(REGISTERED_BLOCKS[block].back, textures);
+}
+
 const BlockDefinition REGISTERED_BLOCKS[BLOCK_COUNT] = {
   [BLOCK_AIR] = (BlockDefinition){
     (AtlasTile) {0, 0},

@@ -1,30 +1,32 @@
 #include "cube.h"
 
 Mesh *cube_create(Vec3 pos, float size, CubeUVSet uvSet) {
-  float vertices[180];
-  
-  float *faceUp = quad_gen_vertices(pos, size, size, (Vec3){0, 1, 0}, uvSet.top);
-  float *faceBottom = quad_gen_vertices(pos, size, size, (Vec3){0, -1, 0}, uvSet.bottom);
+  Vector vertices = vector_create(180, sizeof(Vertex));
 
-  float *faceLeft = quad_gen_vertices(pos, size, size, (Vec3){-1, 0, 0}, uvSet.left);
-  float *faceRight = quad_gen_vertices(pos, size, size, (Vec3){1, 0, 0}, uvSet.right);
+  Vector faceUp = quad_gen_vertices(pos, size, size, size, (Vec3){0, 1, 0}, uvSet.top);
+  Vector faceBottom = quad_gen_vertices(pos, size, size, size, (Vec3){0, -1, 0}, uvSet.bottom);
+  Vector faceLeft = quad_gen_vertices(pos, size, size, size, (Vec3){-1, 0, 0}, uvSet.left);
+  Vector faceRight = quad_gen_vertices(pos, size, size, size, (Vec3){1, 0, 0}, uvSet.right);
+  Vector faceFront = quad_gen_vertices(pos, size, size, size, (Vec3){0, 0, -1}, uvSet.front);
+  Vector faceBack = quad_gen_vertices(pos, size, size, size, (Vec3){0, 0, 1}, uvSet.back);
 
-  float *faceFront = quad_gen_vertices(pos, size, size, (Vec3){0, 0, -1}, uvSet.front);
-  float *faceBack = quad_gen_vertices(pos, size, size, (Vec3){0, 0, 1}, uvSet.back);
+  vector_append_many(&vertices, &faceUp);
+  vector_append_many(&vertices, &faceBottom);
+  vector_append_many(&vertices, &faceLeft);
+  vector_append_many(&vertices, &faceRight);
+  vector_append_many(&vertices, &faceFront);
+  vector_append_many(&vertices, &faceBack);
 
-  memcpy(vertices, faceUp, 30 * sizeof(float));
-  memcpy(vertices + 30, faceBottom, 30 * sizeof(float));
-  memcpy(vertices + 60, faceLeft, 30 * sizeof(float));
-  memcpy(vertices + 90, faceRight, 30 * sizeof(float));
-  memcpy(vertices + 120, faceFront, 30 * sizeof(float));
-  memcpy(vertices + 150, faceBack, 30 * sizeof(float));
+  vector_destroy(&faceUp);
+  vector_destroy(&faceBottom);
+  vector_destroy(&faceLeft);
+  vector_destroy(&faceRight);
+  vector_destroy(&faceFront);
+  vector_destroy(&faceBack);
 
-  free(faceUp);
-  free(faceBottom);
-  free(faceLeft);
-  free(faceRight);
-  free(faceFront);
-  free(faceBack);
+  Mesh *mesh = mesh_create((Vertex *) vertices.data, vertices.size, GL_STATIC_DRAW);
 
-  return mesh_create(vertices, 36, 5 * sizeof(float), GL_STATIC_DRAW);
+  vector_destroy(&vertices);
+
+  return mesh;
 }
