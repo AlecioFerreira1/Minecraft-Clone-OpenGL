@@ -1,7 +1,7 @@
 #include "quad.h"
 
-Vector quad_gen_vertices(Vec3 pos, float width, float height, float depth, Vec3 normal, UVrect rect) {
-  Vector vertices = vector_create(30, sizeof(Vertex));
+Vector quad_gen_vertices(Vec3 pos, float width, float height, Vec3 normal, UVrect rect) {
+  Vector vertices = vector_create(6, sizeof(Vertex));
 
   Vec2 topLeft = {0.f, 0.f};
   Vec2 topRight = {0.f, 0.f};
@@ -10,33 +10,33 @@ Vector quad_gen_vertices(Vec3 pos, float width, float height, float depth, Vec3 
 
   Vec3 v0, v1, v2, v3;
   
-  if(normal.z == 1 || normal.z == -1){
-    v0 = (Vec3){pos.x - (width / 2), pos.y - (height / 2), pos.z + (normal.z * (depth / 2))};
-    v1 = (Vec3){pos.x + (width / 2), pos.y - (height / 2), pos.z + (normal.z * (depth / 2))};
-    v2 = (Vec3){pos.x + (width / 2), pos.y + (height / 2), pos.z + (normal.z * (depth / 2))};
-    v3 = (Vec3){pos.x - (width / 2), pos.y + (height / 2), pos.z + (normal.z * (depth / 2))};
+  if(normal.z != 0.f){
+    v0 = (Vec3){pos.x, pos.y, pos.z};
+    v1 = (Vec3){pos.x + width, pos.y, pos.z};
+    v2 = (Vec3){pos.x + width, pos.y + height, pos.z};
+    v3 = (Vec3){pos.x, pos.y + height, pos.z};
     topLeft = (Vec2){.x = rect.u, .y = rect.v}; 
     topRight = (Vec2){.x = rect.u + rect.w, .y = rect.v};  
     bottomLeft = (Vec2){.x = rect.u, .y = rect.v + rect.h};  
     bottomRight = (Vec2){.x = rect.u + rect.w, .y = rect.v + rect.h}; 
   }
 
-  else if(normal.y == 1 || normal.y == -1){
-    v0 = (Vec3){pos.x - (width / 2), pos.y + (normal.y * (depth / 2)), pos.z - (height / 2)};
-    v1 = (Vec3){pos.x + (width / 2), pos.y + (normal.y * (depth / 2)), pos.z - (height / 2)};
-    v2 = (Vec3){pos.x + (width / 2), pos.y + (normal.y * (depth / 2)), pos.z + (height / 2)};
-    v3 = (Vec3){pos.x - (width / 2), pos.y + (normal.y * (depth / 2)), pos.z + (height / 2)};
+  else if(normal.y != 0.f){
+    v0 = (Vec3){pos.x, pos.y, pos.z};
+    v1 = (Vec3){pos.x + width, pos.y, pos.z};
+    v2 = (Vec3){pos.x + width, pos.y, pos.z + height};
+    v3 = (Vec3){pos.x, pos.y, pos.z + height};
     topLeft = (Vec2){.x = rect.u + rect.w, .y = rect.v + rect.h}; 
     topRight = (Vec2){.x = rect.u, .y = rect.v + rect.h};  
     bottomLeft = (Vec2){.x = rect.u + rect.w, .y = rect.v};  
     bottomRight = (Vec2){.x = rect.u, .y = rect.v}; 
   }
 
-  else if(normal.x == 1 || normal.x == -1){
-    v0 = (Vec3){pos.x + (normal.x * (depth / 2)), pos.y - (width / 2), pos.z - (height / 2)};
-    v1 = (Vec3){pos.x + (normal.x * (depth / 2)), pos.y + (width / 2), pos.z - (height / 2)};
-    v2 = (Vec3){pos.x + (normal.x * (depth / 2)), pos.y + (width / 2), pos.z + (height / 2)};
-    v3 = (Vec3){pos.x + (normal.x * (depth / 2)), pos.y - (width / 2), pos.z + (height / 2)};
+  else if(normal.x != 0.f){
+    v0 = (Vec3){pos.x, pos.y, pos.z};
+    v1 = (Vec3){pos.x, pos.y + height, pos.z};
+    v2 = (Vec3){pos.x, pos.y + height, pos.z + width};
+    v3 = (Vec3){pos.x, pos.y, pos.z + width};
     topLeft = (Vec2){.x = rect.u, .y = rect.v + rect.h};
     topRight = (Vec2){.x = rect.u, .y = rect.v};
     bottomLeft = (Vec2){.x = rect.u + rect.w, .y = rect.v + rect.h}; 
@@ -56,7 +56,7 @@ Vector quad_gen_vertices(Vec3 pos, float width, float height, float depth, Vec3 
   else if(normal.y == 1 || normal.x == -1 || normal.z == -1){
     push_vertex(&vertices, v2, normal, topRight.x, topRight.y);
     push_vertex(&vertices, v1, normal, bottomRight.x, bottomRight.y);
-    push_vertex(&vertices, v0, normal, bottomLeft.x, bottomLeft.y);
+    push_vertex(&vertices, v0, normal, bottomLeft.x, bottomLeft.y); 
 
     push_vertex(&vertices, v0, normal, bottomLeft.x, bottomLeft.y);
     push_vertex(&vertices, v3, normal, topLeft.x, topLeft.y);

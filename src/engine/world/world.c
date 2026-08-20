@@ -24,11 +24,11 @@ void world_update(World *world, Vec3 playerPos) {
   int renderDistanceStartChunk = renderDistanceEndChunk * -1;
   char chunkName[128];
 
-  WorldTypeConfig worldTypeConfig = world_type_get_config(world->type);
+  WorldConfig worldConfig = world_config_get();
   ChunkCoords playerChunk = world_coords_to_chunk_coords(playerPos);
 
   for(int x = renderDistanceEndChunk; x >= renderDistanceStartChunk; --x){
-    for(int y = worldTypeConfig.minHeigth; y < worldTypeConfig.maxHeigth; y += CHUNK_SIZE){
+    for(int y = worldConfig.worldMinHight; y < worldConfig.worldMaxHeight; y += CHUNK_SIZE){
       for(int z = renderDistanceEndChunk; z >= renderDistanceStartChunk; --z){
         ChunkCoords chunkCoords = {x + playerChunk.x, y / CHUNK_SIZE, z + playerChunk.z};
 
@@ -97,10 +97,10 @@ static void world_discard_chunks_out_of_range(World *world, ChunkCoords playerCh
 
       hash_map_delete_key(&world->chunks, chunkName);
       chunk_destroy(chunk);
+      budget--;
     }
 
     priority_queue_pop(&world->destroyQueue);
-    budget--;
   }
 }
 

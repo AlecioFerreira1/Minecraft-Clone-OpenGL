@@ -5,7 +5,8 @@
 #define CHUNK_SIZE 16
 
 typedef struct {
-  int worldHeight;
+  int worldMaxHeight;
+  int worldMinHight;
   uint8_t renderDistance;
   int seed;
 } WorldConfig;

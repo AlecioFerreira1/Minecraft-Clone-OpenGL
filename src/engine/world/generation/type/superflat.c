@@ -4,12 +4,12 @@
 WorldTypeConfig superflat_get_config() {
   WorldTypeConfig config;
 
-  config.minHeigth = 0;
-  config.maxHeigth = world_config_get().worldHeight;
+  config.minHeigth = world_config_get().worldMinHight;
+  config.maxHeigth = world_config_get().worldMaxHeight;
 
   BlockLayer layers[] = {  
     {.block = BLOCK_BEDROCK, .quantity = 1},
-    {.block = BLOCK_STONE, .quantity = 59}, 
+    {.block = BLOCK_STONE, .quantity = 60}, 
     {.block = BLOCK_DIRT, .quantity = 4}, 
     {.block = BLOCK_GRASS, .quantity = 1},
   };

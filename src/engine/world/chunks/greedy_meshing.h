@@ -3,20 +3,20 @@
 #include "chunk.h"
 
 typedef struct {
-  int8_t start_i;
-  int8_t start_j;
-  int8_t end_i;
-  int8_t end_j;
+  int8_t start_row;
+  int8_t start_col;
+  int8_t end_row;
+  int8_t end_col;
+  uint16_t blockType;
 } MaskRect;
 
 void greedy_meshing(
   Vector *vertices, uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], 
-  Vec3 chunkPosOnWorld, const float plane, Vec3 normal, 
-  const float BLOCK_SIZE, TextureAtlas *textures
+  Vec3 chunkPosOnWorld, const float plane, Vec3 normal, TextureAtlas *textures
 );
 
 static Vec3 mask_coords_to_world_coords(
-  Vec3 chunkWorldPos, Vec2 maskCoords, Vec3 normal, const float planeVal
+  Vec3 chunkWorldPos, MaskRect currentRect, Vec3 normal, const float planeVal
 );
 
 static void greedy_meshing_expand_right(

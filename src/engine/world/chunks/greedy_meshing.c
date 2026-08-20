@@ -2,110 +2,105 @@
 #include "../../graphics/geometry/quad.h"
 #include "../block/block_registry.h"
 
-void greedy_meshing(
+void  greedy_meshing(
   Vector *vertices, uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], 
-  Vec3 chunkPosOnWorld, const float plane, Vec3 normal, 
-  const float BLOCK_SIZE, TextureAtlas *textures
+  Vec3 chunkPosOnWorld, const float plane, Vec3 normal, TextureAtlas *textures
 ) {
-  int8_t current_i = 0, current_j = 0;
+  int8_t row = 0, col = 0;
 
-  for( ; current_i < CHUNK_SIZE; ++current_i) {
-    for( ; current_j < CHUNK_SIZE && (*mask)[current_i][current_j] == BLOCK_AIR; ++current_j);
+  ChunkCoords chunkCoords = world_coords_to_chunk_coords(chunkPosOnWorld);
 
-    MaskRect currentRect = {current_i, current_j, current_i, current_j};
+  while(row < CHUNK_SIZE) {
+    for( ; col < CHUNK_SIZE && (*mask)[row][col] == BLOCK_AIR; ++col);
 
-    if((*mask)[current_i][current_j] != BLOCK_AIR) {
-      Block blockType = (*mask)[current_i][current_j];
+    MaskRect currentRect = {row, col, row, col};
 
-      greedy_meshing_expand_right(mask, &currentRect, current_i, current_j);
-      greedy_meshing_expand_below(mask, &currentRect, current_i + 1, current_j);
+    if(col < CHUNK_SIZE && (*mask)[row][col] != BLOCK_AIR) {
+      currentRect.blockType = (*mask)[row][col];
+      greedy_meshing_expand_right(mask, &currentRect, row, col);
+      greedy_meshing_expand_below(mask, &currentRect, row + 1, col);
 
-      Vec3 chunkSliceStartPos = mask_coords_to_world_coords(
-        chunkPosOnWorld, (Vec2) {currentRect.start_i, currentRect.start_j}, normal, plane
-      );
-
-      UVrect uvRect = block_registry_get_uv_rect(blockType, normal_to_face(normal), textures);
+      Vec3 chunkSliceBottomLeft = mask_coords_to_world_coords(chunkPosOnWorld, currentRect, normal, plane);
+      UVrect uvRect = block_registry_get_uv_rect(currentRect.blockType, normal_to_face(normal), textures);
 
       Vector chunkSlice2D = quad_gen_vertices(
-        chunkSliceStartPos, (float) (currentRect.end_j - currentRect.start_j + 1), 
-        (float) (currentRect.end_i - currentRect.start_i + 1), BLOCK_SIZE, normal, uvRect
+        chunkSliceBottomLeft, 
+        (float)(currentRect.end_col - currentRect.start_col + 1), 
+        (float)(currentRect.end_row - currentRect.start_row + 1), 
+        normal, uvRect
       );
 
       vector_append_many(vertices, &chunkSlice2D);
       vector_destroy(&chunkSlice2D);
-        
-      for(int8_t i = currentRect.start_i; i <= currentRect.end_i; ++i) {
-        for(int8_t j = currentRect.start_j; j <= currentRect.end_j; ++j) {
-          (*mask)[i][j] = BLOCK_AIR;
-        }
-      }
 
-      if(currentRect.end_j < (CHUNK_SIZE - 1)) {
-        current_i = currentRect.start_i + 1;
-        current_j = currentRect.end_j + 1;
+      if(currentRect.end_col < (CHUNK_SIZE - 1)) {
+        row = currentRect.start_row;
+        col = currentRect.end_col + 1;
       }
 
       else {
-        current_j = 0;
-        current_i = currentRect.end_i + 1;
+        col = 0;
+        row = currentRect.end_row + 1;
       }
+
+      continue;
     }
+
+    ++row;
   }
 }
 
-static Vec3 mask_coords_to_world_coords(Vec3 chunkPosOnWorld, Vec2 maskCoords, Vec3 normal, const float plane) {
+static Vec3 mask_coords_to_world_coords(Vec3 chunkPosOnWorld, MaskRect currentRect, Vec3 normal, const float plane) {
   Vec3 localChunkCoords;
 
-  if(normal.x == 1 || normal.x == -1) {
+  if(normal.x != 0.f) {
     localChunkCoords.x = plane;
-    localChunkCoords.y = maskCoords.x;
-    localChunkCoords.z = maskCoords.y;
+    localChunkCoords.y = currentRect.start_row;
+    localChunkCoords.z = currentRect.start_col;
   }
 
-  else if(normal.y == 1 || normal.y == -1) {
+  else if(normal.y != 0.f) {
     localChunkCoords.y = plane;
-    localChunkCoords.x = maskCoords.x;
-    localChunkCoords.z = maskCoords.y;
+    localChunkCoords.x = currentRect.start_col;
+    localChunkCoords.z = currentRect.start_row;
   }
 
   else {
     localChunkCoords.z = plane;
-    localChunkCoords.x = maskCoords.x;
-    localChunkCoords.y = maskCoords.y;
+    localChunkCoords.x = currentRect.start_col;
+    localChunkCoords.y = currentRect.start_row;
   }
 
   return vec3_sum(chunkPosOnWorld, localChunkCoords);
 }
 
 static void greedy_meshing_expand_right(
-  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t current_i, int8_t current_j
+  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t row, int8_t col
 ) {
-  int8_t j = current_j;
-  Block blockType = (*mask)[current_i][current_j];
-
-  for( ; (j < CHUNK_SIZE) && (*mask)[current_i][j] == blockType; ++j) {
-    (*mask)[current_i][j] = BLOCK_AIR;
-    currentRect->end_j = j;
+  for(int8_t j = col; (j < CHUNK_SIZE) && (*mask)[row][j] == currentRect->blockType; ++j) {
+    (*mask)[row][j] = BLOCK_AIR;
+    currentRect->end_col = j;
   }
 }
 
 static void greedy_meshing_expand_below(
-  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t current_i, int8_t current_j
+  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t row, int8_t col
 ) {
-  Block blockType = (*mask)[current_i][current_j];
-  int8_t i = current_i;
+  if(row >= CHUNK_SIZE) return;
+
+  int8_t i = row;
 
   while(i < CHUNK_SIZE) {
     bool rowCompleted = true;
 
-    for(int8_t j = currentRect->start_j; (j <= currentRect->end_j) && rowCompleted; ++j) {
-      rowCompleted = rowCompleted && ((*mask)[i][j] == blockType);
+    for(int8_t j = currentRect->start_col; (j <= currentRect->end_col) && rowCompleted; ++j) {
+      rowCompleted = rowCompleted && ((*mask)[i][j] == currentRect->blockType);
     }
 
     if(rowCompleted) {
-      for(int8_t j = currentRect->start_j; j <= currentRect->end_j; ++j) {
+      for(int8_t j = currentRect->start_col; j <= currentRect->end_col; ++j) {
         (*mask)[i][j] = BLOCK_AIR;
-        currentRect->end_i = i;
+        currentRect->end_row = i;
       }
     } 
 
