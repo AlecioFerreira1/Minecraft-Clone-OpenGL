@@ -7,7 +7,7 @@
 
 typedef struct {
   HashMap textures;
-  HashMap materials;
+  // HashMap materials;
   TextureAtlas *textureAtlas;
 } ResourceManager;
 

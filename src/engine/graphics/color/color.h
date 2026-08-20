@@ -9,6 +9,7 @@ typedef struct {
   float r;
   float g;
   float b;
+  float a;
 } Color;
 
 extern Color pallete[COLOR_COUNT];

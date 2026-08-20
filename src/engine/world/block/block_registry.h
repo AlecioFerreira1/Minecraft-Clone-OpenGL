@@ -5,22 +5,20 @@
 
 #include "block.h"
 #include "face.h"
-#include "../../graphics/texture/atlas_tile.h"
+#include "../../graphics/material/material.h"
 #include "../../graphics/texture/texture.h"
-#include "../../graphics/geometry/uv_rect.h"
-#include "../../math/vec3.h"
 
 typedef struct {
-  AtlasTile top;
-  AtlasTile bottom;
-  AtlasTile left;
-  AtlasTile right;
-  AtlasTile front;
-  AtlasTile back;
+  Material top;
+  Material bottom;
+  Material left;
+  Material right;
+  Material front;
+  Material back;
   bool transparent; 
   bool solid;
 } BlockDefinition;
 
-UVrect block_registry_get_uv_rect(Block block, Face face, TextureAtlas *textures);
+Material block_registry_get_material(Block block, Face face, TextureAtlas *textures);
 
 extern const BlockDefinition REGISTERED_BLOCKS[BLOCK_COUNT];

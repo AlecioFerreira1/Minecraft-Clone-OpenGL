@@ -2,7 +2,7 @@
 #include "../../graphics/geometry/quad.h"
 #include "../block/block_registry.h"
 
-void  greedy_meshing(
+void greedy_meshing(
   Vector *vertices, uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], 
   Vec3 chunkPosOnWorld, const float plane, Vec3 normal, TextureAtlas *textures
 ) {
@@ -17,17 +17,18 @@ void  greedy_meshing(
 
     if(col < CHUNK_SIZE && (*mask)[row][col] != BLOCK_AIR) {
       currentRect.blockType = (*mask)[row][col];
+      
       greedy_meshing_expand_right(mask, &currentRect, row, col);
       greedy_meshing_expand_below(mask, &currentRect, row + 1, col);
 
       Vec3 chunkSliceBottomLeft = mask_coords_to_world_coords(chunkPosOnWorld, currentRect, normal, plane);
-      UVrect uvRect = block_registry_get_uv_rect(currentRect.blockType, normal_to_face(normal), textures);
+      Material material = block_registry_get_material(currentRect.blockType, normal_to_face(normal), textures);
 
       Vector chunkSlice2D = quad_gen_vertices(
         chunkSliceBottomLeft, 
         (float)(currentRect.end_col - currentRect.start_col + 1), 
-        (float)(currentRect.end_row - currentRect.start_row + 1), 
-        normal, uvRect
+        (float)(currentRect.end_row - currentRect.start_row + 1),
+        material.color, normal, uv_rect_convert(material.tile, textures)
       );
 
       vector_append_many(vertices, &chunkSlice2D);

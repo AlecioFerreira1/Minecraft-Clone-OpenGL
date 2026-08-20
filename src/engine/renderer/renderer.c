@@ -11,6 +11,7 @@ void renderer_init(Renderer *renderer, GLFWwindow *window) {
   renderer->locView = glGetUniformLocation(renderer->shader, "view");
   renderer->locProj = glGetUniformLocation(renderer->shader, "projection");
   renderer->locTextAtlas = glGetUniformLocation(renderer->shader, "uTexture");
+  renderer->locTileSize = glGetUniformLocation(renderer->shader, "tileSize");
 }
 
 void renderer_begin(Renderer *renderer) {
@@ -42,4 +43,10 @@ void renderer_draw_texture_from_atlas(Renderer *renderer, TextureAtlas *textureA
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textureAtlas->texture->id);
   glUniform1i(renderer->locTextAtlas, 0);
+  
+  glUniform2f(
+    renderer->locTileSize, 
+    ((float)textureAtlas->tileSize / (float)textureAtlas->texture->width),
+    ((float)textureAtlas->tileSize / (float)textureAtlas->texture->height)
+  );
 }

@@ -15,8 +15,9 @@ typedef struct {
 enum VertexAttribute {
   ATTR_POSITION = 0,
   ATTR_COLOR = 1,
-  ATTR_UV = 2,
-  ATTR_NORMAL = 3
+  ATTR_LOCAL_UV = 2,
+  ATTR_NORMAL = 3,
+  ATRR_TILE_UV = 4
 };
 
 Mesh *mesh_create(const Vertex *vertices, size_t numVertices, GLenum usage);

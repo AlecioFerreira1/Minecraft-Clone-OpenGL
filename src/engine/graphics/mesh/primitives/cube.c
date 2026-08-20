@@ -1,16 +1,16 @@
 #include "cube.h"
 
-Mesh *cube_create(Vec3 center, float size, CubeUVSet uvSet) {
+Mesh *cube_create(Vec3 center, float size, CubeUVSet uvSet, Color color[6]) {
   Vector vertices = vector_create(180, sizeof(Vertex));
   Vec3 min = vec3_sub(center, (Vec3) {size / 2, size / 2, size / 2});
   Vec3 max = vec3_sum(center, (Vec3) {size / 2, size / 2, size / 2});
 
-  Vector faceUp = quad_gen_vertices((Vec3) {min.x, max.y, min.z}, size, size, (Vec3){0, 1, 0}, uvSet.top);
-  Vector faceBottom = quad_gen_vertices((Vec3) {min.x, min.y, min.z}, size, size, (Vec3){0, -1, 0}, uvSet.bottom);
-  Vector faceLeft = quad_gen_vertices((Vec3) {min.x, min.y, min.z}, size, size, (Vec3){-1, 0, 0}, uvSet.left);
-  Vector faceRight = quad_gen_vertices((Vec3) {max.x, min.y, min.z}, size, size, (Vec3){1, 0, 0}, uvSet.right);
-  Vector faceFront = quad_gen_vertices((Vec3) {min.x, min.y, min.z}, size, size, (Vec3){0, 0, -1}, uvSet.front);
-  Vector faceBack = quad_gen_vertices((Vec3) {min.x, min.y, max.z}, size, size, (Vec3){0, 0, 1}, uvSet.back);
+  Vector faceUp = quad_gen_vertices((Vec3) {min.x, max.y, min.z}, size, size, color[0], (Vec3){0, 1, 0}, uvSet.top);
+  Vector faceBottom = quad_gen_vertices((Vec3) {min.x, min.y, min.z}, size, size, color[1], (Vec3){0, -1, 0}, uvSet.bottom);
+  Vector faceLeft = quad_gen_vertices((Vec3) {min.x, min.y, min.z}, size, size, color[2], (Vec3){-1, 0, 0}, uvSet.left);
+  Vector faceRight = quad_gen_vertices((Vec3) {max.x, min.y, min.z}, size, size, color[3], (Vec3){1, 0, 0}, uvSet.right);
+  Vector faceFront = quad_gen_vertices((Vec3) {min.x, min.y, min.z}, size, size, color[4], (Vec3){0, 0, -1}, uvSet.front);
+  Vector faceBack = quad_gen_vertices((Vec3) {min.x, min.y, max.z}, size, size, color[5], (Vec3){0, 0, 1}, uvSet.back);
 
   vector_append_many(&vertices, &faceUp);
   vector_append_many(&vertices, &faceBottom);

@@ -15,6 +15,7 @@ typedef struct {
   GLint locView;
   GLint locProj;
   GLint locTextAtlas;
+  GLint locTileSize;
 } Renderer;
 
 void renderer_init(Renderer *renderer, GLFWwindow *window);
