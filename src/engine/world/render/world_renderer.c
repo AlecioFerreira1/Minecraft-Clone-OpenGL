@@ -17,7 +17,7 @@ void world_renderer_render(WorldRenderer *worldRenderer, Renderer *renderer, Vec
     if(chunks->entries[i].key != NULL) {
       Chunk *chunk = (Chunk *) chunks->entries[i].value;
 
-      if(chunk->mesh != NULL) {
+      if(chunk != NULL && chunk->mesh != NULL) {
         renderer_draw_mesh(renderer, chunk->mesh, mat4_identity());
       }
     }

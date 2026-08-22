@@ -4,7 +4,7 @@
 WorldTypeConfig superflat_get_config() {
   WorldTypeConfig config;
 
-  config.minHeigth = world_config_get().worldMinHight;
+  config.minHeigth = world_config_get().worldMinHeight;
   config.maxHeigth = world_config_get().worldMaxHeight;
 
   BlockLayer layers[] = {  

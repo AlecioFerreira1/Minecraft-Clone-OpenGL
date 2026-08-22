@@ -22,7 +22,7 @@ void scene_destroy(Scene *scene) {
 }
 
 void scene_add_entity(Scene *scene, Entity entity) {
-  Entity* newEntity = realloc(scene->entities, (scene->numEntities + 1) * sizeof(Entity));
+  Entity *newEntity = realloc(scene->entities, (scene->numEntities + 1) * sizeof(Entity));
 
   if(newEntity != NULL) {
     scene->entities = newEntity;

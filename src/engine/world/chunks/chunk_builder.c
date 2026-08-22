@@ -11,6 +11,7 @@ ChunkBuilder chunk_builder_create(HashMap *chunks, TextureAtlas *textures) {
   chunkBuilder.textures = textures;
   chunkBuilder.rebuildBudget = 4;
   chunkBuilder.rebuildQueue = priority_queue_create(sizeof(ChunkJob), chunk_job_compare);
+  chunkBuilder.hasPlayerChunk = false;
 
   return chunkBuilder;
 }
@@ -116,24 +117,51 @@ static void fill_mask_by_axis_in_coords_ijk(
 void chunk_builder_update_chunks(ChunkBuilder *chunkBuilder, Vec3 playerPos) {
   ChunkCoords playerChunk = world_coords_to_chunk_coords(playerPos);
 
-  for(size_t i = 0; i < chunkBuilder->chunks->capacity; ++i) {
-    if(chunkBuilder->chunks->entries[i].key != NULL) {
-      Chunk *chunk = (Chunk *) chunkBuilder->chunks->entries[i].value;
+  if(!chunkBuilder->hasPlayerChunk || !chunk_coords_equals(playerChunk, chunkBuilder->lastPlayerChunk)) {
+    WorldConfig worldConfig = world_config_get();
+    int renderDistanceEndChunk = worldConfig.renderDistance;
+    int renderDistanceStartChunk = renderDistanceEndChunk * -1;
+    char chunkName[128];
 
-      if(chunk->dirty && chunk->state == CHUNK_STATE_ACTIVE) {
-        int distanceToplayer = 
-          (playerChunk.x - chunk->coords.x) * (playerChunk.x - chunk->coords.x) +
-          (playerChunk.y - chunk->coords.y) * (playerChunk.y - chunk->coords.y) +
-          (playerChunk.z - chunk->coords.z) * (playerChunk.z - chunk->coords.z)
-        ;
+    while(!priority_queue_is_empty(&chunkBuilder->rebuildQueue)) {
+      ChunkJob *chunkJob = priority_queue_peek(&chunkBuilder->rebuildQueue);
+      Chunk *chunk = world_get_chunk(chunkBuilder->chunks, chunkJob->coords);
 
-        ChunkJob chunkJob = {distanceToplayer, chunk->coords};  
-
-        priority_queue_push(&chunkBuilder->rebuildQueue, &chunkJob);
-        chunk->dirty = false;
-      }
+      if(chunk != NULL) chunk->queued = false;
+      priority_queue_pop(&chunkBuilder->rebuildQueue);
     }
-  }
+
+    for(int x = renderDistanceEndChunk; x >= renderDistanceStartChunk; --x){
+      for(int y = worldConfig.worldMinHeight; y < worldConfig.worldMaxHeight; y += CHUNK_SIZE){
+        for(int z = renderDistanceEndChunk; z >= renderDistanceStartChunk; --z){
+          ChunkCoords chunkCoords = {x + playerChunk.x, y / CHUNK_SIZE, z + playerChunk.z};
+
+          snprintf(
+            chunkName, sizeof(chunkName), "chunk_%d_%d_%d", 
+            chunkCoords.x, chunkCoords.y, chunkCoords.z
+          );
+
+          Chunk *chunk = world_get_chunk(chunkBuilder->chunks, chunkCoords);
+
+          if(chunk != NULL && chunk->dirty && chunk->state == CHUNK_STATE_ACTIVE && !chunk->queued) {
+            int distanceToplayer = 
+              (playerChunk.x - chunk->coords.x) * (playerChunk.x - chunk->coords.x) +
+              (playerChunk.y - chunk->coords.y) * (playerChunk.y - chunk->coords.y) +
+              (playerChunk.z - chunk->coords.z) * (playerChunk.z - chunk->coords.z)
+            ;
+
+            ChunkJob chunkJob = {distanceToplayer, chunk->coords};  
+
+            priority_queue_push(&chunkBuilder->rebuildQueue, &chunkJob);
+            chunk->queued = true;
+          }
+        }
+      }
+    } 
+
+    chunkBuilder->hasPlayerChunk = true;
+    chunkBuilder->lastPlayerChunk = playerChunk;
+  } 
   
   int8_t budget = chunkBuilder->rebuildBudget;
 
@@ -143,9 +171,12 @@ void chunk_builder_update_chunks(ChunkBuilder *chunkBuilder, Vec3 playerPos) {
   
     if(chunk != NULL) {
       chunk_builder_build_chunk_mesh(chunkBuilder, chunk);
+
+      chunk->dirty = false;
+      chunk->queued = false;
+      budget--;
     }
 
     priority_queue_pop(&chunkBuilder->rebuildQueue);
-    budget--;
   }
 }

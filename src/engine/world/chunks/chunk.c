@@ -5,16 +5,11 @@ Chunk *chunk_create(ChunkCoords chunkCoords, WorldGenerator *generator) {
 
   chunk->mesh = NULL;
   chunk->dirty = true;
+  chunk->queued = false;
   chunk->coords = chunkCoords;
   chunk->state = CHUNK_STATE_ACTIVE;
 
-  for(uint8_t x = 0; x < CHUNK_SIZE; ++x){
-    for(uint8_t y = 0; y < CHUNK_SIZE; ++y){
-      for(uint8_t z = 0; z < CHUNK_SIZE; ++z){
-        chunk->blocks[x][y][z] = world_generator_generate_block(generator, chunk->coords, x, y, z); 
-      }
-    } 
-  }
+  world_generator_generate_chunk(generator, chunk);
 
   return chunk;
 }

@@ -9,13 +9,15 @@
 #include "type/world_type.h"
 #include "../chunks/chunk_coords.h"
 
+typedef struct Chunk Chunk;
+
 typedef struct {
   uint32_t seed;
   WorldType worldType;
+  WorldTypeConfig worldTypeConfig;
 } WorldGenerator;
 
 WorldGenerator world_generator_create(uint32_t seed, WorldType worldType);
-
-uint16_t world_generator_generate_block(
-  WorldGenerator *generator, ChunkCoords chunkCoords, uint8_t localChunkX, uint8_t localChunkY, uint8_t localChunkZ
-);
+void world_generator_generate_chunk(WorldGenerator *generator, Chunk *chunk);
+void world_generator_remove_resources(WorldGenerator *generator);
+static void generate_super_flat(WorldGenerator *generator, Chunk *chunk);

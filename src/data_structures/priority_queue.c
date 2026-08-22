@@ -36,3 +36,7 @@ PriorityQueue priority_queue_build_from_vector(const Vector *vector, int8_t (*co
 
   return queue;
 }
+
+void priority_queue_clear(PriorityQueue *queue) {
+  vector_clear(&queue->heap.data);
+}

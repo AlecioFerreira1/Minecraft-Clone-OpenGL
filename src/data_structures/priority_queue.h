@@ -13,3 +13,4 @@ void priority_queue_pop(PriorityQueue *queue);
 bool priority_queue_is_empty(const PriorityQueue *queue);
 void *priority_queue_peek(const PriorityQueue *queue);
 PriorityQueue priority_queue_build_from_vector(const Vector *vector, int8_t (*compare)(const void *itemA, const void *itemB));
+void priority_queue_clear(PriorityQueue *queue);

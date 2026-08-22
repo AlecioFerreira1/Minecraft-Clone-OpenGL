@@ -15,9 +15,10 @@ typedef enum {
   CHUNK_STATE_DESTROYED
 } ChunkState;
 
-typedef struct {
+typedef struct Chunk {
   uint16_t blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
   bool dirty;
+  bool queued;
   Mesh *mesh;
   ChunkCoords coords;
   ChunkState state;

@@ -16,7 +16,7 @@ typedef struct {
 } BlockLayer;
 
 typedef struct {
-  BlockLayer* layers;
+  BlockLayer *layers;
   size_t nLayers;
   int minHeigth;
   int maxHeigth;

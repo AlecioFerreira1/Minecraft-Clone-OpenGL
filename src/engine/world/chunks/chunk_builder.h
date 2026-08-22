@@ -12,6 +12,8 @@ typedef struct {
   TextureAtlas *textures;
   PriorityQueue rebuildQueue;
   int8_t rebuildBudget;
+  ChunkCoords lastPlayerChunk;
+  bool hasPlayerChunk;
 } ChunkBuilder;
 
 ChunkBuilder chunk_builder_create(HashMap *chunks, TextureAtlas *textures);

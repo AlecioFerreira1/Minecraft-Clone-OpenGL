@@ -8,8 +8,9 @@ World world_create(WorldType worldType) {
   world.type = worldType;
   world.destroyBudget = 4;
   world.destroyQueue = priority_queue_create(sizeof(ChunkJob), chunk_job_compare);
+  world.hasPlayerChunk = false;
   
-  hash_map_create(&world.chunks, 10);
+  hash_map_create(&world.chunks, 11);
 
   return world;
 }
@@ -17,66 +18,70 @@ World world_create(WorldType worldType) {
 void world_destroy(World *world) {
   hash_map_destroy(&world->chunks);
   priority_queue_destroy(&world->destroyQueue);
+  world_generator_remove_resources(&world->worldGenerator);
 }
 
 void world_update(World *world, Vec3 playerPos) {
+  ChunkCoords playerChunk = world_coords_to_chunk_coords(playerPos);
   int renderDistanceEndChunk = world->config.renderDistance;
   int renderDistanceStartChunk = renderDistanceEndChunk * -1;
-  char chunkName[128];
 
-  WorldConfig worldConfig = world_config_get();
-  ChunkCoords playerChunk = world_coords_to_chunk_coords(playerPos);
+  if(!world->hasPlayerChunk || !chunk_coords_equals(world->lastPlayerChunk, playerChunk)) {
+    char chunkName[128];
 
-  for(int x = renderDistanceEndChunk; x >= renderDistanceStartChunk; --x){
-    for(int y = worldConfig.worldMinHight; y < worldConfig.worldMaxHeight; y += CHUNK_SIZE){
-      for(int z = renderDistanceEndChunk; z >= renderDistanceStartChunk; --z){
-        ChunkCoords chunkCoords = {x + playerChunk.x, y / CHUNK_SIZE, z + playerChunk.z};
+    for(int x = renderDistanceEndChunk; x >= renderDistanceStartChunk; --x){
+      for(int y = world->config.worldMinHeight; y < world->config.worldMaxHeight; y += CHUNK_SIZE){
+        for(int z = renderDistanceEndChunk; z >= renderDistanceStartChunk; --z){
+          ChunkCoords chunkCoords = {x + playerChunk.x, y / CHUNK_SIZE, z + playerChunk.z};
 
-        snprintf(
-          chunkName, sizeof(chunkName), 
-          "chunk_%d_%d_%d", 
-          chunkCoords.x, chunkCoords.y, chunkCoords.z
-        );
+          snprintf(chunkName, sizeof(chunkName), "chunk_%d_%d_%d", chunkCoords.x, chunkCoords.y, chunkCoords.z);
 
-        if(!chunk_already_loaded(&world->chunks, chunkName)) {
-          hash_map_insert(&world->chunks, chunkName, chunk_create(chunkCoords, &world->worldGenerator));
-          world_mark_dirty(world, chunkCoords); 
-        } 
+          Chunk *chunk = hash_map_get_value(&world->chunks, chunkName);
 
-        else{
-          Chunk *chunk = world_get_chunk(&world->chunks, chunkCoords);
-          chunk->state = CHUNK_STATE_ACTIVE;
+          if(chunk == NULL) {
+            chunk = chunk_create(chunkCoords, &world->worldGenerator);
+            
+            hash_map_insert(&world->chunks, chunkName, chunk);
+            world_mark_dirty(world, chunkCoords); 
+          } 
+
+          else chunk->state = CHUNK_STATE_ACTIVE;
         }
       }
-    }
-  } 
+    } 
+  }
 
   world_discard_chunks_out_of_range(world, playerChunk, renderDistanceStartChunk, renderDistanceEndChunk); 
+
+  world->lastPlayerChunk = playerChunk;
+  world->hasPlayerChunk = true;
 }
 
 static void world_discard_chunks_out_of_range(World *world, ChunkCoords playerChunk, int renderDistanceStart, int renderDistanceEnd) {
-  for(size_t i = 0; i < world->chunks.capacity; ++i) {
-    if(world->chunks.entries[i].key != NULL) {
-      Chunk *chunk = (Chunk *) world->chunks.entries[i].value;
+  if(!world->hasPlayerChunk || !chunk_coords_equals(world->lastPlayerChunk, playerChunk)) { 
+    for(size_t i = 0; i < world->chunks.capacity; ++i) {
+      if(world->chunks.entries[i].key != NULL) {
+        Chunk *chunk = (Chunk *) world->chunks.entries[i].value;
 
-      if(chunk->state != CHUNK_STATE_ACTIVE) continue;
+        if(chunk->state != CHUNK_STATE_ACTIVE) continue;
 
-      if((chunk->coords.x) < (renderDistanceStart + playerChunk.x) || 
-        (chunk->coords.z) < (renderDistanceStart + playerChunk.z) ||
-        (chunk->coords.x) > (renderDistanceEnd + playerChunk.x) ||
-        (chunk->coords.z) > (renderDistanceEnd + playerChunk.z)
-      ) {
-        int distanceToplayer = 
-          (playerChunk.x - chunk->coords.x) * (playerChunk.x - chunk->coords.x) +
-          (playerChunk.y - chunk->coords.y) * (playerChunk.y - chunk->coords.y) +
-          (playerChunk.z - chunk->coords.z) * (playerChunk.z - chunk->coords.z)
-        ;
+        if((chunk->coords.x) < (renderDistanceStart + playerChunk.x) || 
+          (chunk->coords.z) < (renderDistanceStart + playerChunk.z) ||
+          (chunk->coords.x) > (renderDistanceEnd + playerChunk.x) ||
+          (chunk->coords.z) > (renderDistanceEnd + playerChunk.z)
+        ) {
+          int distanceToplayer = 
+            (playerChunk.x - chunk->coords.x) * (playerChunk.x - chunk->coords.x) +
+            (playerChunk.y - chunk->coords.y) * (playerChunk.y - chunk->coords.y) +
+            (playerChunk.z - chunk->coords.z) * (playerChunk.z - chunk->coords.z)
+          ;
 
-        chunk->state = CHUNK_STATE_PENDING_UNLOAD;
+          chunk->state = CHUNK_STATE_PENDING_UNLOAD;
 
-        ChunkJob chunkJob = {distanceToplayer, chunk->coords};
+          ChunkJob chunkJob = {distanceToplayer, chunk->coords};
 
-        priority_queue_push(&world->destroyQueue, &chunkJob);
+          priority_queue_push(&world->destroyQueue, &chunkJob);
+        }
       }
     }
   }
@@ -117,10 +122,6 @@ uint16_t world_block_at(HashMap *chunks, Vec3 worldCoords) {
   ;
 }
 
-static bool chunk_already_loaded(HashMap *chunks, char *chunkName) {
-  return hash_map_search(chunks, chunkName) != -1;
-}
-
 static void world_mark_dirty(World *world, ChunkCoords chunkCoords) {
   ChunkCoords neighBoursChunkCoords[6] = {
     {chunkCoords.x, chunkCoords.y + 1, chunkCoords.z},
@@ -141,11 +142,7 @@ static void world_mark_dirty(World *world, ChunkCoords chunkCoords) {
 Chunk *world_get_chunk(HashMap *chunks, ChunkCoords chunkCoords) {
   char chunkName[128];
 
-  snprintf(
-    chunkName, sizeof(chunkName), 
-    "chunk_%d_%d_%d", 
-    chunkCoords.x, chunkCoords.y, chunkCoords.z
-  );
+  snprintf(chunkName, sizeof(chunkName), "chunk_%d_%d_%d", chunkCoords.x, chunkCoords.y, chunkCoords.z);
 
   return (Chunk *) hash_map_get_value(chunks, chunkName);
 }
