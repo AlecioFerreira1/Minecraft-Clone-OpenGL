@@ -20,9 +20,9 @@ static Vec3 mask_coords_to_world_coords(
 );
 
 static void greedy_meshing_expand_right(
-  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t current_i, int8_t current_j
+  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t current_i, int8_t current_j, int *airCount
 );
 
 static void greedy_meshing_expand_below(
-  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t current_i, int8_t current_j
+  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t current_i, int8_t current_j, int *airCount
 );

@@ -1,8 +1,8 @@
 #include "superflat.h"
 #include "../../../config/world_config.h"
 
-WorldTypeConfig superflat_get_config() {
-  WorldTypeConfig config;
+Superflat superflat_get_config() {
+  Superflat config;
 
   config.minHeigth = world_config_get().worldMinHeight;
   config.maxHeigth = world_config_get().worldMaxHeight;

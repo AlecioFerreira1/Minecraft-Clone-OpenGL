@@ -8,16 +8,24 @@
 #include "../../math/vec3.h"
 #include "type/world_type.h"
 #include "../chunks/chunk_coords.h"
+#include "type/superflat.h"
+#include "type/default.h"
+#include "../../math/noise.h"
 
 typedef struct Chunk Chunk;
 
 typedef struct {
-  uint32_t seed;
+  int32_t seed;
   WorldType worldType;
-  WorldTypeConfig worldTypeConfig;
+  
+  struct {
+    Superflat superflat;
+    Default default_;
+  } config;
 } WorldGenerator;
 
-WorldGenerator world_generator_create(uint32_t seed, WorldType worldType);
-void world_generator_generate_chunk(WorldGenerator *generator, Chunk *chunk);
+WorldGenerator world_generator_create(int32_t seed, WorldType worldType);
+void world_generator_generate_chunk(WorldGenerator *generator, Chunk *chunk); 
 void world_generator_remove_resources(WorldGenerator *generator);
 static void generate_super_flat(WorldGenerator *generator, Chunk *chunk);
+static void generate_default(WorldGenerator *generator, Chunk *chunk);

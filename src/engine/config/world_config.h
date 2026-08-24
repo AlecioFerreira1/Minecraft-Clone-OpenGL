@@ -8,7 +8,7 @@ typedef struct {
   int worldMaxHeight;
   int worldMinHeight;
   uint8_t renderDistance;
-  int seed;
+  int32_t seed;
 } WorldConfig;
 
 WorldConfig world_config_get();

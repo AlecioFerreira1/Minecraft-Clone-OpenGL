@@ -4,7 +4,7 @@ Scene scene_create() {
   Scene scene;
 
   scene.camera = camera_create();
-  scene.world = world_create(WORLD_TYPE_SUPERFLAT);
+  scene.world = world_create(WORLD_TYPE_DEFAULT);
   scene.numEntities = 0;
   scene.entities = NULL;
 

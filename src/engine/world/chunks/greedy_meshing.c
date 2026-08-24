@@ -7,19 +7,24 @@ void greedy_meshing(
   Vec3 chunkPosOnWorld, const float plane, Vec3 normal, TextureAtlas *textures
 ) {
   int8_t row = 0, col = 0;
-
   ChunkCoords chunkCoords = world_coords_to_chunk_coords(chunkPosOnWorld);
+  int airCount[CHUNK_SIZE] = {0};
 
   while(row < CHUNK_SIZE) {
-    for( ; col < CHUNK_SIZE && (*mask)[row][col] == BLOCK_AIR; ++col);
+    while(col < CHUNK_SIZE && (*mask)[row][col] == BLOCK_AIR) {
+      airCount[row]++;
+      col++;
+    }
+
+    if(col == CHUNK_SIZE) col = 0;
 
     MaskRect currentRect = {row, col, row, col};
 
     if(col < CHUNK_SIZE && (*mask)[row][col] != BLOCK_AIR) {
       currentRect.blockType = (*mask)[row][col];
       
-      greedy_meshing_expand_right(mask, &currentRect, row, col);
-      greedy_meshing_expand_below(mask, &currentRect, row + 1, col);
+      greedy_meshing_expand_right(mask, &currentRect, row, col, airCount);
+      greedy_meshing_expand_below(mask, &currentRect, row + 1, col, airCount);
 
       Vec3 chunkSliceBottomLeft = mask_coords_to_world_coords(chunkPosOnWorld, currentRect, normal, plane);
       Material material = block_registry_get_material(currentRect.blockType, normal_to_face(normal), textures);
@@ -34,7 +39,13 @@ void greedy_meshing(
       vector_append_many(vertices, &chunkSlice2D);
       vector_destroy(&chunkSlice2D);
 
-      if(currentRect.end_col < (CHUNK_SIZE - 1)) {
+      if(airCount[currentRect.start_row] != col) {
+        row = currentRect.start_row;
+        col = 0;
+        airCount[currentRect.start_row] = 0;
+      }
+
+      else if(currentRect.end_col < (CHUNK_SIZE - 1)) {
         row = currentRect.start_row;
         col = currentRect.end_col + 1;
       }
@@ -43,11 +54,9 @@ void greedy_meshing(
         col = 0;
         row = currentRect.end_row + 1;
       }
-
-      continue;
     }
 
-    ++row;
+    else ++row;
   }
 }
 
@@ -76,16 +85,17 @@ static Vec3 mask_coords_to_world_coords(Vec3 chunkPosOnWorld, MaskRect currentRe
 }
 
 static void greedy_meshing_expand_right(
-  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t row, int8_t col
+  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t row, int8_t col, int *airCount
 ) {
   for(int8_t j = col; (j < CHUNK_SIZE) && (*mask)[row][j] == currentRect->blockType; ++j) {
     (*mask)[row][j] = BLOCK_AIR;
+    airCount[row]++;
     currentRect->end_col = j;
   }
 }
 
 static void greedy_meshing_expand_below(
-  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t row, int8_t col
+  uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], MaskRect *currentRect, int8_t row, int8_t col, int *airCount
 ) {
   if(row >= CHUNK_SIZE) return;
 
@@ -101,6 +111,7 @@ static void greedy_meshing_expand_below(
     if(rowCompleted) {
       for(int8_t j = currentRect->start_col; j <= currentRect->end_col; ++j) {
         (*mask)[i][j] = BLOCK_AIR;
+        airCount[i]++;
         currentRect->end_row = i;
       }
     } 

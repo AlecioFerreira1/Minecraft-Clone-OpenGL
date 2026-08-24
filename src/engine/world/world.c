@@ -6,8 +6,8 @@ World world_create(WorldType worldType) {
   world.config = world_config_get();
   world.worldGenerator = world_generator_create(world.config.seed, worldType);
   world.type = worldType;
-  world.destroyBudget = 4;
-  world.destroyQueue = priority_queue_create(sizeof(ChunkJob), chunk_job_compare);
+  world.unloadChunks.destroyBudget = 4;
+  world.unloadChunks.destroyQueue = priority_queue_create(sizeof(ChunkJob), chunk_job_compare);
   world.hasPlayerChunk = false;
   
   hash_map_create(&world.chunks, 11);
@@ -17,7 +17,7 @@ World world_create(WorldType worldType) {
 
 void world_destroy(World *world) {
   hash_map_destroy(&world->chunks);
-  priority_queue_destroy(&world->destroyQueue);
+  priority_queue_destroy(&world->unloadChunks.destroyQueue);
   world_generator_remove_resources(&world->worldGenerator);
 }
 
@@ -80,17 +80,17 @@ static void world_discard_chunks_out_of_range(World *world, ChunkCoords playerCh
 
           ChunkJob chunkJob = {distanceToplayer, chunk->coords};
 
-          priority_queue_push(&world->destroyQueue, &chunkJob);
+          priority_queue_push(&world->unloadChunks.destroyQueue, &chunkJob);
         }
       }
     }
   }
 
-  int8_t budget = world->destroyBudget;
+  int8_t budget = world->unloadChunks.destroyBudget;
   char chunkName[128];
 
-  while(budget > 0 && !priority_queue_is_empty(&world->destroyQueue)) {
-    ChunkJob *chunkJob = (ChunkJob *) priority_queue_peek(&world->destroyQueue);
+  while(budget > 0 && !priority_queue_is_empty(&world->unloadChunks.destroyQueue)) {
+    ChunkJob *chunkJob = (ChunkJob *) priority_queue_peek(&world->unloadChunks.destroyQueue);
     Chunk *chunk = world_get_chunk(&world->chunks, chunkJob->coords);
 
     if(chunk != NULL && chunk->state == CHUNK_STATE_PENDING_UNLOAD) {
@@ -105,7 +105,7 @@ static void world_discard_chunks_out_of_range(World *world, ChunkCoords playerCh
       budget--;
     }
 
-    priority_queue_pop(&world->destroyQueue);
+    priority_queue_pop(&world->unloadChunks.destroyQueue);
   }
 }
 

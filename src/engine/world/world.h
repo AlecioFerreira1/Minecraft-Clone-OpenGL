@@ -12,8 +12,12 @@ typedef struct {
   HashMap chunks;
   WorldGenerator worldGenerator;
   WorldType type;
-  int8_t destroyBudget;
-  PriorityQueue destroyQueue;
+
+  struct {
+    int8_t destroyBudget;
+    PriorityQueue destroyQueue;
+  } unloadChunks;
+
   ChunkCoords lastPlayerChunk;
   bool hasPlayerChunk;
 } World;
