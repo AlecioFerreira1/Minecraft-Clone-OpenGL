@@ -11,5 +11,5 @@ out vec4 FragColor;
 void main()
 {
   vec2 atlasUv = vTileUv + fract(vUv) * tileSize;
-  FragColor = texture(uTexture, atlasUv);
+  FragColor = texture(uTexture, atlasUv) * vColor;
 }

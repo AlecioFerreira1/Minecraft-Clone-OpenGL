@@ -21,3 +21,10 @@ Superflat superflat_get_config() {
 
   return config;
 }
+
+Block superflat_get_block_on_y_level(Superflat config, float worldY) {
+  if(worldY > 65.f || worldY < config.minHeigth) return BLOCK_AIR;
+  if(worldY > 60.f) return BLOCK_GRASS;
+  if(worldY > 0.f) return BLOCK_STONE;
+  else return BLOCK_BEDROCK;
+}

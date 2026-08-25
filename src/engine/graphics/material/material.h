@@ -6,4 +6,5 @@
 typedef struct {
   AtlasTile tile;
   Color color;
+  bool animated;
 } Material;

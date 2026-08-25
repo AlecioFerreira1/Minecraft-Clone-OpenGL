@@ -20,3 +20,4 @@ typedef struct {
 } Superflat;
 
 Superflat superflat_get_config();
+Block superflat_get_block_on_y_level(Superflat config, float worldY);

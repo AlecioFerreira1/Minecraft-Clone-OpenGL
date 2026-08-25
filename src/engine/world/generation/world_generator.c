@@ -37,54 +37,40 @@ void world_generator_remove_resources(WorldGenerator *generator) {
 }   
 
 static void generate_super_flat(WorldGenerator *generator, Chunk *chunk) {
-  uint16_t block = BLOCK_AIR;
+  const Vec3 chunkCoordsOnWorldCoords = chunk_coords_to_world_coords(chunk->coords);
 
   for(int y = 0; y < CHUNK_SIZE; ++y) {
-    int yTarget = (int) chunk_coords_to_world_coords(chunk->coords).y + y;
-    const bool minHeightExceeded = yTarget < generator->config.superflat.minHeigth; 
-    const bool maxHeightExceeded = yTarget > generator->config.superflat.maxHeigth;
-
-    if(!minHeightExceeded && !maxHeightExceeded) {
-      int layer = generator->config.superflat.minHeigth; 
-      
-      for(size_t i = 0; i < generator->config.superflat.nLayers; ++i){ 
-        if(yTarget < layer) break; 
-        
-        block = generator->config.superflat.layers[i].block; 
-        layer += generator->config.superflat.layers[i].quantity; 
-      } 
-      
-      if(layer <= yTarget) block = BLOCK_AIR;
-    }
+    float currentHeight = chunkCoordsOnWorldCoords.y + y;
 
     for(int x = 0; x < CHUNK_SIZE; ++x) {
       for(int z = 0; z < CHUNK_SIZE; ++z) {
-        chunk->blocks[x][y][z] = block;
+        chunk->blocks[x][y][z] = superflat_get_block_on_y_level(generator->config.superflat, currentHeight);
       }
     }
   }
 }
 
 static void generate_default(WorldGenerator *generator, Chunk *chunk) {
-  const float baseHeight = generator->config.default_.baseTerrainHeight;
-  const float amplitude = generator->config.default_.amplitude;
-  const float frequency = generator->config.default_.frequency;
   const Vec3 chunkCoordsOnWorldCoords = chunk_coords_to_world_coords(chunk->coords);
+  const float maxTerrainHeight = generator->config.default_.maxTerrainHeight;
 
   for(uint8_t x = 0; x < CHUNK_SIZE; ++x) {
     for(uint8_t z = 0; z < CHUNK_SIZE; ++z) {
-      Vec3 worldCoords = vec3_sum(chunkCoordsOnWorldCoords, (Vec3) {(float) x, 0.f, (float) z});
-      float noise = noise2D(worldCoords.x * frequency, worldCoords.z * frequency, generator->seed);
-      float height = baseHeight + noise * amplitude;
+      Vec3 worldCoords = vec3_sum(chunkCoordsOnWorldCoords, (Vec3) {(float)x, 0.f, (float)z});
+      float height = default_terrain_height_generation(generator->config.default_, worldCoords, generator->seed);
       
       for(uint8_t y = 0; y < CHUNK_SIZE; ++y) {
-        if((chunkCoordsOnWorldCoords.y + y) < height) {
-          chunk->blocks[x][y][z] = default_get_block_by_y_level(generator->config.default_, chunkCoordsOnWorldCoords.y + y);
+        float currentHeight = chunkCoordsOnWorldCoords.y + y;
+
+        if(currentHeight <= height && currentHeight <= maxTerrainHeight) {
+          chunk->blocks[x][y][z] = default_get_block_on_y_level(generator->config.default_, currentHeight);
         }
 
-        else {
-          chunk->blocks[x][y][z] = BLOCK_AIR;
+        else if(currentHeight <= maxTerrainHeight && currentHeight <= generator->config.default_.waterMaxHeight) {
+          chunk->blocks[x][y][z] = BLOCK_WATER;
         }
+
+        else chunk->blocks[x][y][z] = BLOCK_AIR;
       }
     }
   }

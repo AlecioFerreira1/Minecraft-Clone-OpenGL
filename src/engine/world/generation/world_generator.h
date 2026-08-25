@@ -10,7 +10,6 @@
 #include "../chunks/chunk_coords.h"
 #include "type/superflat.h"
 #include "type/default.h"
-#include "../../math/noise.h"
 
 typedef struct Chunk Chunk;
 
