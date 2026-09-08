@@ -1,6 +1,6 @@
 #include "mesh.h"
 
-Mesh *mesh_create(const Vertex *vertices, size_t numVertices, GLenum usage) {
+Mesh *mesh_create(const Vertex *vertices, size_t numVertices, const Vector *subMeshes, GLenum usage) {
   GLuint VAO, VBO;
 
   glGenVertexArrays(1, &VAO);
@@ -11,7 +11,7 @@ Mesh *mesh_create(const Vertex *vertices, size_t numVertices, GLenum usage) {
   glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), vertices, usage);
 
   Mesh *mesh = malloc(sizeof(Mesh));
-  *mesh = (Mesh) {VAO, VBO, numVertices};
+  *mesh = (Mesh) {VAO, VBO, numVertices, vector_copy(subMeshes)};
 
   glVertexAttribPointer(ATTR_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, position));
   glEnableVertexAttribArray(ATTR_POSITION);
@@ -35,6 +35,7 @@ void mesh_destroy(Mesh *mesh) {
   if(mesh != NULL) {
     glDeleteVertexArrays(1, &mesh->VAO);
     glDeleteBuffers(1, &mesh->VBO);
+    vector_destroy(&mesh->subMeshes);
     free(mesh);
   }
-}
+} 

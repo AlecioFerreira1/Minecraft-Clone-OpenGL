@@ -12,6 +12,7 @@ void renderer_init(Renderer *renderer, GLFWwindow *window) {
   renderer->locProj = glGetUniformLocation(renderer->shader, "projection");
   renderer->locTextAtlas = glGetUniformLocation(renderer->shader, "uTexture");
   renderer->locTileSize = glGetUniformLocation(renderer->shader, "tileSize");
+  renderer->locCutOut = glGetUniformLocation(renderer->shader, "uCutout");
 }
 
 void renderer_begin(Renderer *renderer) {
@@ -22,9 +23,52 @@ void renderer_begin(Renderer *renderer) {
 }
 
 void renderer_draw_mesh(Renderer *renderer, Mesh *mesh, Mat4 model) {
-  glUniformMatrix4fv(renderer->locModel, 1, GL_FALSE, model.data);
-  glBindVertexArray(mesh->VAO);
-  glDrawArrays(GL_TRIANGLES, 0, mesh->numVertices);
+  size_t numSubMeshes = vector_size(&mesh->subMeshes);
+
+  for(size_t i = 0; i < numSubMeshes; ++i) {
+    renderer_draw_submesh(renderer, mesh, model, i);
+  }
+}
+
+void renderer_draw_submesh(Renderer *renderer, Mesh *mesh, Mat4 model, size_t submeshIndex) {
+  if(submeshIndex >= vector_size(&mesh->subMeshes)) return;
+
+  SubMesh *subMesh = vector_get_item(&mesh->subMeshes, submeshIndex);
+
+  set_sub_mesh_render_config(renderer, subMesh);
+
+  if(subMesh->indexesCount > 0) {
+    glUniformMatrix4fv(renderer->locModel, 1, GL_FALSE, model.data);
+    glBindVertexArray(mesh->VAO);
+    glDrawArrays(GL_TRIANGLES, subMesh->startIndex, subMesh->indexesCount);
+  }
+
+  if(subMesh->renderMode == RENDER_MODE_BLEND) glDepthMask(GL_TRUE); 
+}
+
+static void set_sub_mesh_render_config(Renderer *renderer, SubMesh *submesh) {
+  bool cutout = false;
+
+  switch(submesh->renderMode) {
+    case RENDER_MODE_OPAQUE:
+      glDisable(GL_BLEND);
+      break;
+
+    case RENDER_MODE_CUTOUT:
+      cutout = true;
+      glDisable(GL_BLEND);
+      break;
+    
+    case RENDER_MODE_BLEND:
+      glEnable(GL_BLEND);
+      glDepthMask(GL_FALSE);
+      break;
+    
+    default:
+      break;
+  }
+
+  glUniform1i(renderer->locCutOut, cutout);
 }
 
 void renderer_set_view(Renderer *renderer, Mat4 view) {

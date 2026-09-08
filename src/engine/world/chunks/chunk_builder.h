@@ -6,6 +6,7 @@
 #include "../../../data_structures/priority_queue.h"
 #include "../../../data_structures/vector.h"
 #include "../../graphics/geometry/vertex.h"
+#include "../../graphics/geometry/vertices_group.h"
 
 typedef struct {
   HashMap *chunks;

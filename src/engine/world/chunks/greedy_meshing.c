@@ -3,7 +3,7 @@
 #include "../block/block_registry.h"
 
 void greedy_meshing(
-  Vector *vertices, uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], 
+  VerticesGroup *verticesGroup, uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], 
   Vec3 chunkPosOnWorld, const float plane, Vec3 normal, TextureAtlas *textures
 ) {
   int8_t row = 0, col = 0;
@@ -33,11 +33,25 @@ void greedy_meshing(
         chunkSliceBottomLeft, 
         (float)(currentRect.end_col - currentRect.start_col + 1), 
         (float)(currentRect.end_row - currentRect.start_row + 1),
-        material.color, normal, uv_rect_convert(material.tile, textures)
+        material.color, normal, uv_rect_convert(material.tile, textures),
+        false
       );
 
-      vector_append_many(vertices, &chunkSlice2D);
+      vertices_group_add(verticesGroup, &chunkSlice2D, material.renderMode);
       vector_destroy(&chunkSlice2D);
+
+      if(material.doubleSized) {
+        Vector oppositeVertices = quad_gen_vertices(
+          chunkSliceBottomLeft, 
+          (float)(currentRect.end_col - currentRect.start_col + 1), 
+          (float)(currentRect.end_row - currentRect.start_row + 1),
+          material.color, normal, uv_rect_convert(material.tile, textures),
+          true
+        ); 
+
+        vertices_group_add(verticesGroup, &oppositeVertices, material.renderMode);
+        vector_destroy(&oppositeVertices);
+      }
 
       if(airCount[currentRect.start_row] != col) {
         row = currentRect.start_row;

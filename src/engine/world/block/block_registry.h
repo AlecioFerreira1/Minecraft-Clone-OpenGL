@@ -15,7 +15,6 @@ typedef struct {
   Material right;
   Material front;
   Material back;
-  bool transparent; 
   bool solid;
 } BlockDefinition;
 

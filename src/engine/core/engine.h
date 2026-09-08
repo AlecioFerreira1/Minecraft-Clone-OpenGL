@@ -1,17 +1,10 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include "../platform/platform.h"
 #include "../input/input.h"
 #include "../window/window.h"
-#include "../graphics/shader/shader.h"
-#include "../graphics/mesh/mesh.h"
 #include "../config/engine_config.h"
 #include "../debug/debug_info.h"
-
-#include "../graphics/mesh/primitives/cube.h"
 #include "../math/mat4.h"
 #include "../scene/scene.h"
 #include "../renderer/renderer.h"

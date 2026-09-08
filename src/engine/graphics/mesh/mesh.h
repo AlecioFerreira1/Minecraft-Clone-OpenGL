@@ -5,12 +5,20 @@
 
 #include "../../../data_structures/vector.h"
 #include "../geometry/vertex.h"
+#include "../geometry/render_mode.h"
+
+typedef struct {
+  size_t startIndex;
+  size_t indexesCount;
+  RenderMode renderMode;
+} SubMesh;
 
 typedef struct {
   GLuint VAO;
   GLuint VBO;
   size_t numVertices;
-} Mesh;
+  Vector subMeshes;
+ } Mesh;
 
 enum VertexAttribute {
   ATTR_POSITION = 0,
@@ -20,5 +28,5 @@ enum VertexAttribute {
   ATRR_TILE_UV = 4
 };
 
-Mesh *mesh_create(const Vertex *vertices, size_t numVertices, GLenum usage);
+Mesh *mesh_create(const Vertex *vertices, size_t numVertices, const Vector *subMeshes, GLenum usage);
 void mesh_destroy(Mesh *mesh);

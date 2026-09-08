@@ -8,6 +8,8 @@
 #include "../../math/vec3.h"
 #include "../generation/world_generator.h"
 #include "chunk_coords.h"
+#include "../vegetation/vegetation.h"
+#include "../../../data_structures/vector.h"
 
 typedef enum {
   CHUNK_STATE_ACTIVE,
@@ -17,6 +19,7 @@ typedef enum {
 
 typedef struct Chunk {
   uint16_t blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+  Vector vegetation;
   bool dirty;
   bool queued;
   Mesh *mesh;

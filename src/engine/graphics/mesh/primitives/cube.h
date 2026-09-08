@@ -3,15 +3,17 @@
 #include "../mesh.h"
 #include "../../color/color.h"
 #include "../../geometry/quad.h"
-#include "../../geometry/uv_rect.h"
+#include "../../material/material.h"
 
 typedef struct {
-  UVrect top;
-  UVrect bottom;
-  UVrect left;
-  UVrect right;
-  UVrect front;
-  UVrect back;
-} CubeUVSet;
+  Material top;
+  Material bottom;
+  Material left;
+  Material right;
+  Material front;
+  Material back;
+  TextureAtlas *textures;
+} CubeMaterial;
 
-Mesh *cube_create(Vec3 center, float size, CubeUVSet uvSet, Color color[6]);
+Mesh *cube_create(Vec3 center, float size, CubeMaterial cubeMaterial);
+// static Vector 

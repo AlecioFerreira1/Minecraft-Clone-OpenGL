@@ -8,6 +8,7 @@ Chunk *chunk_create(ChunkCoords chunkCoords, WorldGenerator *generator) {
   chunk->queued = false;
   chunk->coords = chunkCoords;
   chunk->state = CHUNK_STATE_ACTIVE;
+  chunk->vegetation = vector_create(1, sizeof(Vegetation));
 
   world_generator_generate_chunk(generator, chunk);
 
@@ -16,6 +17,7 @@ Chunk *chunk_create(ChunkCoords chunkCoords, WorldGenerator *generator) {
 
 void chunk_destroy(Chunk *chunk) {
   mesh_destroy(chunk->mesh);
+  vector_destroy(&chunk->vegetation);
   free(chunk); 
 }
 

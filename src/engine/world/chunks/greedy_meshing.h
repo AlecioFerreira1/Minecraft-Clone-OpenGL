@@ -1,6 +1,7 @@
 #pragma once
 
 #include "chunk.h"
+#include "../../graphics/geometry/vertices_group.h"
 
 typedef struct {
   int8_t start_row;
@@ -11,7 +12,7 @@ typedef struct {
 } MaskRect;
 
 void greedy_meshing(
-  Vector *vertices, uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE], 
+  VerticesGroup *verticesGroup, uint16_t (*mask)[CHUNK_SIZE][CHUNK_SIZE],
   Vec3 chunkPosOnWorld, const float plane, Vec3 normal, TextureAtlas *textures
 );
 

@@ -10,3 +10,4 @@ typedef struct {
 
 WorldRenderer world_renderer_create(HashMap *chunks, TextureAtlas *textures);
 void world_renderer_render(WorldRenderer *worldRenderer, Renderer *renderer, Vec3 playerPos);
+static void process_chunks_by_render_mode(WorldRenderer *worldRenderer, Renderer *renderer, RenderMode mode);

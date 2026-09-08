@@ -17,22 +17,15 @@ ChunkBuilder chunk_builder_create(HashMap *chunks, TextureAtlas *textures) {
 }
 
 static void chunk_builder_build_chunk_mesh(ChunkBuilder *chunkBuilder, Chunk *chunk) {
-  Vector vertices = vector_create(VECTOR_MIN_CAPACITY * CHUNK_SIZE, sizeof(Vertex));
+  VerticesGroup verticesGroup = vertices_group_create();
   const Vec3 chunkPosOnWorld = chunk_coords_to_world_coords(chunk->coords);
 
-  uint16_t mask_neg_x[CHUNK_SIZE][CHUNK_SIZE];
-  uint16_t mask_pos_x[CHUNK_SIZE][CHUNK_SIZE];
-  uint16_t mask_neg_y[CHUNK_SIZE][CHUNK_SIZE];
-  uint16_t mask_pos_y[CHUNK_SIZE][CHUNK_SIZE];
-  uint16_t mask_neg_z[CHUNK_SIZE][CHUNK_SIZE];
-  uint16_t mask_pos_z[CHUNK_SIZE][CHUNK_SIZE];
-
-  memset(mask_neg_x, BLOCK_AIR, sizeof(mask_neg_x));
-  memset(mask_pos_x, BLOCK_AIR, sizeof(mask_pos_x));
-  memset(mask_neg_y, BLOCK_AIR, sizeof(mask_neg_y));
-  memset(mask_pos_y, BLOCK_AIR, sizeof(mask_pos_y));
-  memset(mask_neg_z, BLOCK_AIR, sizeof(mask_neg_z));
-  memset(mask_pos_z, BLOCK_AIR, sizeof(mask_pos_z));
+  uint16_t mask_neg_x[CHUNK_SIZE][CHUNK_SIZE] = {BLOCK_AIR};
+  uint16_t mask_pos_x[CHUNK_SIZE][CHUNK_SIZE]= {BLOCK_AIR};
+  uint16_t mask_neg_y[CHUNK_SIZE][CHUNK_SIZE]= {BLOCK_AIR};
+  uint16_t mask_pos_y[CHUNK_SIZE][CHUNK_SIZE]= {BLOCK_AIR};
+  uint16_t mask_neg_z[CHUNK_SIZE][CHUNK_SIZE]= {BLOCK_AIR};
+  uint16_t mask_pos_z[CHUNK_SIZE][CHUNK_SIZE]= {BLOCK_AIR};
 
   for(uint8_t i = 0; i < CHUNK_SIZE; ++i) { 
     for(uint8_t j = 0 ; j < CHUNK_SIZE; ++j) { 
@@ -54,19 +47,39 @@ static void chunk_builder_build_chunk_mesh(ChunkBuilder *chunkBuilder, Chunk *ch
       }   
     } 
       
-    greedy_meshing(&vertices, &mask_neg_x, chunkPosOnWorld, (float)i, (Vec3) {-1, 0, 0}, chunkBuilder->textures);
-    greedy_meshing(&vertices, &mask_pos_x, chunkPosOnWorld, (float)i + BLOCK_SIZE, (Vec3) {1, 0, 0}, chunkBuilder->textures);
-    greedy_meshing(&vertices, &mask_neg_y, chunkPosOnWorld, (float)i, (Vec3) {0, -1, 0}, chunkBuilder->textures);
-    greedy_meshing(&vertices, &mask_pos_y, chunkPosOnWorld, (float)i + BLOCK_SIZE, (Vec3) {0, 1, 0}, chunkBuilder->textures);
-    greedy_meshing(&vertices, &mask_neg_z, chunkPosOnWorld, (float)i, (Vec3) {0, 0, -1}, chunkBuilder->textures);
-    greedy_meshing(&vertices, &mask_pos_z, chunkPosOnWorld, (float)i + BLOCK_SIZE, (Vec3) {0, 0, 1}, chunkBuilder->textures);
+    greedy_meshing(&verticesGroup, &mask_neg_x, chunkPosOnWorld, (float)i, (Vec3) {-1, 0, 0}, chunkBuilder->textures);
+    greedy_meshing(&verticesGroup, &mask_pos_x, chunkPosOnWorld, (float)i + BLOCK_SIZE, (Vec3) {1, 0, 0}, chunkBuilder->textures);
+    greedy_meshing(&verticesGroup, &mask_neg_y, chunkPosOnWorld, (float)i, (Vec3) {0, -1, 0}, chunkBuilder->textures);
+    greedy_meshing(&verticesGroup, &mask_pos_y, chunkPosOnWorld, (float)i + BLOCK_SIZE, (Vec3) {0, 1, 0}, chunkBuilder->textures);
+    greedy_meshing(&verticesGroup, &mask_neg_z, chunkPosOnWorld, (float)i, (Vec3) {0, 0, -1}, chunkBuilder->textures);
+    greedy_meshing(&verticesGroup, &mask_pos_z, chunkPosOnWorld, (float)i + BLOCK_SIZE, (Vec3) {0, 0, 1}, chunkBuilder->textures);
   }
-  
+
+  Vector vertices = vector_create(VECTOR_MIN_CAPACITY, sizeof(Vertex));
+  Vector subMeshes = vector_create(3, sizeof(SubMesh));
+
+  SubMesh opaqueSubmesh = {0, vector_size(&verticesGroup.opaqueVertices), RENDER_MODE_OPAQUE};
+  SubMesh cutoutSubmesh = {vector_size(&verticesGroup.opaqueVertices), vector_size(&verticesGroup.cutoutVertices), RENDER_MODE_CUTOUT};
+  SubMesh blendSubmesh = {
+    vector_size(&verticesGroup.opaqueVertices) + vector_size(&verticesGroup.cutoutVertices), 
+    vector_size(&verticesGroup.blendVertices), RENDER_MODE_BLEND
+  };
+
+  vector_append_many(&vertices, &verticesGroup.opaqueVertices);
+  vector_append_many(&vertices, &verticesGroup.cutoutVertices);
+  vector_append_many(&vertices, &verticesGroup.blendVertices);
+
+  vector_push_back(&subMeshes, &opaqueSubmesh);
+  vector_push_back(&subMeshes, &cutoutSubmesh);
+  vector_push_back(&subMeshes, &blendSubmesh);
+
   mesh_destroy(chunk->mesh);
 
-  chunk->mesh = mesh_create((Vertex *) vertices.data, vertices.size, GL_STATIC_DRAW);
+  chunk->mesh = mesh_create((Vertex *) vertices.data, vertices.size, &subMeshes, GL_STATIC_DRAW);
 
-  vector_destroy(&vertices);  
+  vector_destroy(&vertices);
+  vector_destroy(&subMeshes);
+  vertices_group_destroy(&verticesGroup);
 }
 
 static void fill_mask_by_axis_in_coords_ijk(
@@ -80,37 +93,49 @@ static void fill_mask_by_axis_in_coords_ijk(
   if(normal.x == -1) {
     neighbourBlockOnWorldPos = vec3_sum(chunkPosOnWorld, (Vec3) {(float)i - BLOCK_SIZE, (float)j, (float) k});
     neighbourBlockType = i > 0 ? chunk->blocks[i - 1][j][k] : world_block_at(chunks, neighbourBlockOnWorldPos);
-    if(neighbourBlockType == BLOCK_AIR) (*mask)[j][k] = chunk->blocks[i][j][k];
+    
+    if(neighbourBlockType == BLOCK_AIR || (neighbourBlockType == BLOCK_WATER && chunk->blocks[i][j][k] != BLOCK_WATER)) 
+      (*mask)[j][k] = chunk->blocks[i][j][k];
   }
 
   else if(normal.x == 1) {
     neighbourBlockOnWorldPos = vec3_sum(chunkPosOnWorld, (Vec3) {(float)i + BLOCK_SIZE, (float)j, (float) k});
     neighbourBlockType = i < (CHUNK_SIZE - 1) ? chunk->blocks[i + 1][j][k] : world_block_at(chunks, neighbourBlockOnWorldPos);
-    if(neighbourBlockType == BLOCK_AIR) (*mask)[j][k] = chunk->blocks[i][j][k];
+    
+    if(neighbourBlockType == BLOCK_AIR || (neighbourBlockType == BLOCK_WATER && chunk->blocks[i][j][k] != BLOCK_WATER)) 
+      (*mask)[j][k] = chunk->blocks[i][j][k];
   }
 
   else if(normal.y == -1) {
     neighbourBlockOnWorldPos = vec3_sum(chunkPosOnWorld, (Vec3) {(float)j, (float)i - BLOCK_SIZE, (float)k});
     neighbourBlockType = i > 0 ? chunk->blocks[j][i - 1][k] : world_block_at(chunks, neighbourBlockOnWorldPos);
-    if(neighbourBlockType == BLOCK_AIR) (*mask)[k][j] = chunk->blocks[j][i][k];
+    
+    if(neighbourBlockType == BLOCK_AIR || (neighbourBlockType == BLOCK_WATER && chunk->blocks[j][i][k] != BLOCK_WATER)) 
+      (*mask)[k][j] = chunk->blocks[j][i][k];
   }
 
   else if(normal.y == 1) {
     neighbourBlockOnWorldPos = vec3_sum(chunkPosOnWorld, (Vec3) {(float)j, (float)i + BLOCK_SIZE, (float)k});
     neighbourBlockType = i < (CHUNK_SIZE - 1) ? chunk->blocks[j][i + 1][k] : world_block_at(chunks, neighbourBlockOnWorldPos);
-    if(neighbourBlockType == BLOCK_AIR) (*mask)[k][j] = chunk->blocks[j][i][k];
+    
+    if(neighbourBlockType == BLOCK_AIR || (neighbourBlockType == BLOCK_WATER && chunk->blocks[j][i][k] != BLOCK_WATER)) 
+      (*mask)[k][j] = chunk->blocks[j][i][k];
   }
 
   else if(normal.z == -1) {
     neighbourBlockOnWorldPos = vec3_sum(chunkPosOnWorld, (Vec3) {(float)j, (float)k, (float)i - BLOCK_SIZE});
     neighbourBlockType = i > 0 ? chunk->blocks[j][k][i - 1] : world_block_at(chunks, neighbourBlockOnWorldPos);
-    if(neighbourBlockType == BLOCK_AIR) (*mask)[k][j] = chunk->blocks[j][k][i];
+    
+    if(neighbourBlockType == BLOCK_AIR || (neighbourBlockType == BLOCK_WATER && chunk->blocks[j][k][i] != BLOCK_WATER)) 
+      (*mask)[k][j] = chunk->blocks[j][k][i];
   }
 
   else {
     neighbourBlockOnWorldPos = vec3_sum(chunkPosOnWorld, (Vec3) {(float)j, (float)k, (float)i + BLOCK_SIZE});
     neighbourBlockType = i < (CHUNK_SIZE - 1) ? chunk->blocks[j][k][i + 1] : world_block_at(chunks, neighbourBlockOnWorldPos);
-    if(neighbourBlockType == BLOCK_AIR) (*mask)[k][j] = chunk->blocks[j][k][i];
+    
+    if(neighbourBlockType == BLOCK_AIR || (neighbourBlockType == BLOCK_WATER && chunk->blocks[j][k][i] != BLOCK_WATER)) 
+      (*mask)[k][j] = chunk->blocks[j][k][i];
   }
 }
 

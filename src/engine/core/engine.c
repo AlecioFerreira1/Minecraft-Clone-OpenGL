@@ -1,11 +1,5 @@
 #include "engine.h"
 
-#include <stb_image.h>
-#include <stdio.h>
-#include <math.h>
-
-#include "../world/block/block_registry.h"
-
 void engine_init(Engine *engine) {
   platform_setup_glfw();
 
