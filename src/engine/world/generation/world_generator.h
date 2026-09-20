@@ -28,3 +28,4 @@ void world_generator_generate_chunk(WorldGenerator *generator, Chunk *chunk);
 void world_generator_remove_resources(WorldGenerator *generator);
 static void generate_super_flat(WorldGenerator *generator, Chunk *chunk);
 static void generate_default(WorldGenerator *generator, Chunk *chunk);
+static void generate_default_vegetation(WorldGenerator *generator, Chunk *chunk, float worldX, float worldY, float worldZ);

@@ -17,9 +17,11 @@ typedef enum {
   VEGETATION_PINK_TULIP,
   VEGETATION_OXEYE_DAISY,
   VEGETATION_OAK_TREE,
+  VEGETATION_NONE,
   VEGETATION_COUNT
 } VegetationType;
 
 bool vegetation_type_simple(VegetationType type);
 bool vegetation_type_double(VegetationType type);
 bool vegetation_type_structure(VegetationType type);
+bool vegetation_type_none(VegetationType type);

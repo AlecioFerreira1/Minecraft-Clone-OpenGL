@@ -1,6 +1,7 @@
 #include "chunk_builder.h"
 #include "../world.h"
 #include "greedy_meshing.h"
+#include "../vegetation/vegetation_builder.h"
 
 static const float BLOCK_SIZE = 1.f;
 
@@ -55,6 +56,8 @@ static void chunk_builder_build_chunk_mesh(ChunkBuilder *chunkBuilder, Chunk *ch
     greedy_meshing(&verticesGroup, &mask_pos_z, chunkPosOnWorld, (float)i + BLOCK_SIZE, (Vec3) {0, 0, 1}, chunkBuilder->textures);
   }
 
+  vegetation_builder_create_vertices(&verticesGroup, &chunk->vegetation, chunkBuilder->textures);
+  
   Vector vertices = vector_create(VECTOR_MIN_CAPACITY, sizeof(Vertex));
   Vector subMeshes = vector_create(3, sizeof(SubMesh));
 

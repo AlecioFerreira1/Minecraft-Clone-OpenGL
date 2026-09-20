@@ -5,35 +5,36 @@ Mesh *cube_create(Vec3 center, float size, CubeMaterial cubeMaterial) {
   VerticesGroup verticesGroup = vertices_group_create();
   Vec3 min = vec3_sub(center, (Vec3) {size / 2, size / 2, size / 2});
   Vec3 max = vec3_sum(center, (Vec3) {size / 2, size / 2, size / 2});
+  Vec2 cubeFaceDims = {size, size};
 
   Vector faceTop = quad_gen_vertices(
-    (Vec3) {min.x, max.y, min.z}, size, size, cubeMaterial.top.color, (Vec3){0, 1, 0}, 
-    uv_rect_convert(cubeMaterial.top.tile, cubeMaterial.textures), false 
+    (Vec3) {min.x, max.y, min.z}, cubeFaceDims, cubeMaterial.top.color, (Vec3){0, 1, 0}, 
+    uv_rect_convert(cubeMaterial.top.tile, cubeMaterial.textures), false, 0.f, (Vec3){0, 1, 0}
   );
   
   Vector faceBottom = quad_gen_vertices(
-    (Vec3) {min.x, min.y, min.z}, size, size, cubeMaterial.bottom.color, (Vec3){0, -1, 0}, 
-    uv_rect_convert(cubeMaterial.bottom.tile, cubeMaterial.textures), false
+    (Vec3) {min.x, min.y, min.z}, cubeFaceDims, cubeMaterial.bottom.color, (Vec3){0, -1, 0}, 
+    uv_rect_convert(cubeMaterial.bottom.tile, cubeMaterial.textures), false, 0.f, (Vec3){0, -1, 0}
   );
   
   Vector faceLeft = quad_gen_vertices(
-    (Vec3) {min.x, min.y, min.z}, size, size, cubeMaterial.left.color, (Vec3){-1, 0, 0}, 
-    uv_rect_convert(cubeMaterial.left.tile, cubeMaterial.textures), false
+    (Vec3) {min.x, min.y, min.z}, cubeFaceDims, cubeMaterial.left.color, (Vec3){-1, 0, 0}, 
+    uv_rect_convert(cubeMaterial.left.tile, cubeMaterial.textures), false, 0.f, (Vec3){-1, 0, 0}
   );
   
   Vector faceRight = quad_gen_vertices(
-    (Vec3) {max.x, min.y, min.z}, size, size, cubeMaterial.right.color, (Vec3){1, 0, 0}, 
-    uv_rect_convert(cubeMaterial.right.tile, cubeMaterial.textures), false
+    (Vec3) {max.x, min.y, min.z}, cubeFaceDims, cubeMaterial.right.color, (Vec3){1, 0, 0}, 
+    uv_rect_convert(cubeMaterial.right.tile, cubeMaterial.textures), false, 0.f, (Vec3){1, 0, 0}
   );
   
   Vector faceFront = quad_gen_vertices(
-    (Vec3) {min.x, min.y, min.z}, size, size, cubeMaterial.front.color, (Vec3){0, 0, -1}, 
-    uv_rect_convert(cubeMaterial.front.tile, cubeMaterial.textures), false
+    (Vec3) {min.x, min.y, min.z}, cubeFaceDims, cubeMaterial.front.color, (Vec3){0, 0, -1}, 
+    uv_rect_convert(cubeMaterial.front.tile, cubeMaterial.textures), false, 0.f, (Vec3){0, 0, -1}
   );
 
   Vector faceBack = quad_gen_vertices(
-    (Vec3) {min.x, min.y, max.z}, size, size, cubeMaterial.back.color, (Vec3){0, 0, 1}, 
-    uv_rect_convert(cubeMaterial.back.tile, cubeMaterial.textures), false
+    (Vec3) {min.x, min.y, max.z}, cubeFaceDims, cubeMaterial.back.color, (Vec3){0, 0, 1}, 
+    uv_rect_convert(cubeMaterial.back.tile, cubeMaterial.textures), false, 0.f, (Vec3){0, 0, 1}
   );
 
   vertices_group_add(&verticesGroup, &faceTop, cubeMaterial.top.renderMode);
@@ -52,13 +53,12 @@ Mesh *cube_create(Vec3 center, float size, CubeMaterial cubeMaterial) {
 
   Vector vertices = vector_create(VECTOR_MIN_CAPACITY, sizeof(Vertex));
   Vector subMeshes = vector_create(3, sizeof(SubMesh));
+  size_t opaqueVerticesCount = vector_size(&verticesGroup.opaqueVertices);
+  size_t cutoutVerticesCount = vector_size(&verticesGroup.cutoutVertices);
 
-  SubMesh opaqueSubmesh = {0, vector_size(&verticesGroup.opaqueVertices), RENDER_MODE_OPAQUE};
-  SubMesh cutoutSubmesh = {vector_size(&verticesGroup.opaqueVertices), vector_size(&verticesGroup.cutoutVertices), RENDER_MODE_CUTOUT};
-  SubMesh blendSubmesh = {
-    vector_size(&verticesGroup.opaqueVertices) + vector_size(&verticesGroup.cutoutVertices), 
-    vector_size(&verticesGroup.blendVertices), RENDER_MODE_BLEND
-  };
+  SubMesh opaqueSubmesh = {0, opaqueVerticesCount, RENDER_MODE_OPAQUE};
+  SubMesh cutoutSubmesh = {opaqueVerticesCount, cutoutVerticesCount, RENDER_MODE_CUTOUT};
+  SubMesh blendSubmesh = { opaqueVerticesCount + cutoutVerticesCount, vector_size(&verticesGroup.blendVertices), RENDER_MODE_BLEND};
 
   vector_append_many(&vertices, &verticesGroup.opaqueVertices);
   vector_append_many(&vertices, &verticesGroup.cutoutVertices);

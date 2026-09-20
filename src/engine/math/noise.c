@@ -1,6 +1,6 @@
 #include "noise.h"
 
-float noise2D(float x, float z, int seed) {
+float noise2D(float x, float z, int32_t seed) {
   int32_t cellX = (int32_t)floor(x);
   int32_t cellZ = (int32_t)floor(z);
 

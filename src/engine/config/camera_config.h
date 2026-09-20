@@ -1,6 +1,6 @@
 #pragma once
 
-#define CONVERT_TO_RADIANS 0.01745329251f
+#include "../math/convert_to_radians.h"
 
 typedef struct {
   float sensitivity;

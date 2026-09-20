@@ -11,12 +11,12 @@ Material block_registry_get_material(Block block, Face face, TextureAtlas *textu
 
 const BlockDefinition REGISTERED_BLOCKS[BLOCK_COUNT] = {
   [BLOCK_AIR] = (BlockDefinition){
-    (Material) {.color = (Color) {1.f, 1.f, 1.f, 1.f}, .tile = (AtlasTile) {0, 0}, .animated = false, .renderMode = RENDER_MODE_CUTOUT, .doubleSized = false},
-    (Material) {.color = (Color) {1.f, 1.f, 1.f, 1.f}, .tile = (AtlasTile) {0, 0}, .animated = false, .renderMode = RENDER_MODE_CUTOUT, .doubleSized = false},
-    (Material) {.color = (Color) {1.f, 1.f, 1.f, 1.f}, .tile = (AtlasTile) {0, 0}, .animated = false, .renderMode = RENDER_MODE_CUTOUT, .doubleSized = false},
-    (Material) {.color = (Color) {1.f, 1.f, 1.f, 1.f}, .tile = (AtlasTile) {0, 0}, .animated = false, .renderMode = RENDER_MODE_CUTOUT, .doubleSized = false},
-    (Material) {.color = (Color) {1.f, 1.f, 1.f, 1.f}, .tile = (AtlasTile) {0, 0}, .animated = false, .renderMode = RENDER_MODE_CUTOUT, .doubleSized = false},
-    (Material) {.color = (Color) {1.f, 1.f, 1.f, 1.f}, .tile = (AtlasTile) {0, 0}, .animated = false, .renderMode = RENDER_MODE_CUTOUT, .doubleSized = false},
+    MATERIAL_DEFAULT,
+    MATERIAL_DEFAULT,
+    MATERIAL_DEFAULT,
+    MATERIAL_DEFAULT,
+    MATERIAL_DEFAULT,
+    MATERIAL_DEFAULT,
     false,
   },
   [BLOCK_GRASS] = (BlockDefinition){

@@ -3,18 +3,26 @@
 const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
   [VEGETATION_SHORT_GRASS] = {
     .material = (Material) {
-      .tile = (AtlasTile) {.tile_x = 8, .tile_y = 41}, 
-      .color = (Color) {.r = 80.f / 255.f, .g = 149.f / 255.f, .b = 41.f / 255.f, .a = 1.f}, 
+      .tile = (AtlasTile) {.tile_x = 7, .tile_y = 41}, 
+      .color = (Color) {.r = 100.f / 255.f, .g = 169.f / 255.f, .b = 61.f / 255.f, .a = 1.f}, 
       .animated = false,
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_TALL_GRASS] = {
     .material = (Material) {
       .tile = (AtlasTile) {.tile_x = 7, .tile_y = 41}, 
-      .color = (Color) {.r = 80.f / 255.f, .g = 149.f / 255.f, .b = 41.f / 255.f, .a = 1.f}, 
+      .color = (Color) {.r = 100.f / 255.f, .g = 169.f / 255.f, .b = 61.f / 255.f, .a = 1.f}, 
+      .animated = false,
+      .renderMode = RENDER_MODE_CUTOUT,
+      .doubleSized = true
+    },
+    .upper_material = (Material) {
+      .tile = (AtlasTile) {.tile_x = 8, .tile_y = 41}, 
+      .color = (Color) {.r = 100.f / 255.f, .g = 169.f / 255.f, .b = 61.f / 255.f, .a = 1.f}, 
       .animated = false,
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
@@ -27,8 +35,9 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .color = (Color) {.r = 1.f, .g = 1.f, .b = 1.f, .a = 1.f}, 
       .animated = false,
       .renderMode = RENDER_MODE_CUTOUT,
-      .doubleSized = true
+      .doubleSized = true,
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_DANDELION] = {
@@ -39,6 +48,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_POPPY] = {
@@ -49,6 +59,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_BLUE_ORCHID] = {
@@ -59,6 +70,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_ALLIUM] = {
@@ -69,6 +81,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_AZURE_BLUET] = {
@@ -79,6 +92,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_RED_TULIP] = {
@@ -89,6 +103,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_ORANGE_TULIP] = {
@@ -99,6 +114,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_WHITE_TULIP] = {
@@ -109,6 +125,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_PINK_TULIP] = {
@@ -119,6 +136,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_OXEYE_DAISY] = {
@@ -129,6 +147,7 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_CUTOUT,
       .doubleSized = true
     },
+    .upper_material = MATERIAL_DEFAULT,
     .solid = false,
   },
   [VEGETATION_OAK_TREE] = {
@@ -139,6 +158,18 @@ const VegetationDefinition REGISTERED_VEGETATIONS[VEGETATION_COUNT] = {
       .renderMode = RENDER_MODE_OPAQUE,
       .doubleSized = false
     },
+    .upper_material = MATERIAL_DEFAULT, 
     .solid = true,
   },
+  [VEGETATION_NONE] = {
+    .material = (Material) {
+      .tile = (AtlasTile) {.tile_x = 0, .tile_y = 0}, 
+      .color = (Color) {.r = 1.f, .g = 1.f, .b = 1.f, .a = 0.f}, 
+      .animated = false,
+      .renderMode = RENDER_MODE_OPAQUE,
+      .doubleSized = false
+    },
+    .upper_material = MATERIAL_DEFAULT,
+    .solid = false,
+  }
 };

@@ -104,3 +104,18 @@ Mat4 mat4_lookAt(Vec3 eye, Vec3 forward, Vec3 right, Vec3 up) {
 
   return view;
 }
+
+Mat3 mat4_homogeneous_to_mat3(Mat4 mat) {
+  Mat3 res;
+  int aux = 0;
+
+  for(int i = 0; i < 16; ++i) {
+    if(aux >= 9) break;
+
+    if((i + 1) % 4 != 0) {
+      res.data[aux++] = mat.data[i];
+    }
+  }
+
+  return res;
+}

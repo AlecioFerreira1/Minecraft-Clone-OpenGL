@@ -7,6 +7,7 @@
 
 typedef struct {
   Material material;
+  Material upper_material;
   bool solid;
 } VegetationDefinition;
 

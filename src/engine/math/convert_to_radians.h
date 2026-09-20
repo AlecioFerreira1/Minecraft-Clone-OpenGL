@@ -1,0 +1,3 @@
+#pragma once
+
+#define CONVERT_TO_RADIANS 0.01745329251f

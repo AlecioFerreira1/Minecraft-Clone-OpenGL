@@ -72,6 +72,31 @@ static void generate_default(WorldGenerator *generator, Chunk *chunk) {
 
         else chunk->blocks[x][y][z] = BLOCK_AIR;
       }
+
+      generate_default_vegetation(generator, chunk, worldCoords.x, (float)floor(height), worldCoords.z);
+    }
+  }
+}
+
+static void generate_default_vegetation(WorldGenerator *generator, Chunk *chunk, float worldX, float worldY, float worldZ) {
+  const Vec3 chunkCoords = (Vec3) {(float)chunk->coords.x, (float)chunk->coords.y, (float)chunk->coords.z};
+  const Vec3 worldCoords = (Vec3) {worldX, worldY, worldZ};
+  const Vec3 localCoords = vec3_sub(worldCoords, vec3_scale(chunkCoords, CHUNK_SIZE));
+  const bool heightOutofBounds = localCoords.y < 0 || localCoords.y >= CHUNK_SIZE;
+  
+  if(
+    (worldY + 1.f) >= generator->config.default_.vegetationMinHeight && 
+    (worldY + 1.f) <= generator->config.default_.vegetationMaxHeight &&
+    (worldY) <= generator->config.default_.maxTerrainHeight && !heightOutofBounds
+  ) {
+    if(chunk->blocks[(uint8_t)localCoords.x][(uint8_t)localCoords.y][(uint8_t)localCoords.z] == BLOCK_GRASS) {
+      Vegetation vegetation = default_vegetation_generation(
+        generator->config.default_, vec3_sum(worldCoords, (Vec3) {0.f, 1.f, 0.f}), generator->seed
+      );
+
+      if(!vegetation_type_none(vegetation.type) && !vegetation_type_structure(vegetation.type)) {
+        vector_push_back(&chunk->vegetation, &vegetation);
+      }
     }
   }
 }

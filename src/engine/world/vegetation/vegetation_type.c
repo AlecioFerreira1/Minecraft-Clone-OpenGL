@@ -1,7 +1,7 @@
 #include "vegetation_type.h"
 
 bool vegetation_type_simple(VegetationType type) {
-  return !vegetation_type_double(type) && !vegetation_type_structure(type);
+  return !vegetation_type_double(type) && !vegetation_type_structure(type) && !vegetation_type_none(type);
 }
 
 bool vegetation_type_double(VegetationType type) {
@@ -10,4 +10,8 @@ bool vegetation_type_double(VegetationType type) {
 
 bool vegetation_type_structure(VegetationType type) {
   return type == VEGETATION_OAK_TREE;
+}
+
+bool vegetation_type_none(VegetationType type) {
+  return type == VEGETATION_NONE;
 }

@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "vec3.h"
+#include "mat3.h"
 
 typedef struct {
   float data[16];
@@ -16,3 +17,4 @@ Mat4 mat4_rotate_x(float angle);
 Mat4 mat4_rotate_y(float angle);
 Mat4 mat4_mul(Mat4 a, Mat4 b);
 Mat4 mat4_lookAt(Vec3 eye, Vec3 forward, Vec3 right, Vec3 up);
+Mat3 mat4_homogeneous_to_mat3(Mat4 mat);

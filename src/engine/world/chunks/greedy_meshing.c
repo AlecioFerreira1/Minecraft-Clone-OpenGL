@@ -28,13 +28,15 @@ void greedy_meshing(
 
       Vec3 chunkSliceBottomLeft = mask_coords_to_world_coords(chunkPosOnWorld, currentRect, normal, plane);
       Material material = block_registry_get_material(currentRect.blockType, normal_to_face(normal), textures);
+      
+      Vec2 quadDims = {
+        (float)(currentRect.end_col - currentRect.start_col + 1), 
+        (float)(currentRect.end_row - currentRect.start_row + 1)
+      };
 
       Vector chunkSlice2D = quad_gen_vertices(
-        chunkSliceBottomLeft, 
-        (float)(currentRect.end_col - currentRect.start_col + 1), 
-        (float)(currentRect.end_row - currentRect.start_row + 1),
-        material.color, normal, uv_rect_convert(material.tile, textures),
-        false
+        chunkSliceBottomLeft, quadDims, material.color, normal, 
+        uv_rect_convert(material.tile, textures), false, 0.f, normal
       );
 
       vertices_group_add(verticesGroup, &chunkSlice2D, material.renderMode);
@@ -42,11 +44,8 @@ void greedy_meshing(
 
       if(material.doubleSized) {
         Vector oppositeVertices = quad_gen_vertices(
-          chunkSliceBottomLeft, 
-          (float)(currentRect.end_col - currentRect.start_col + 1), 
-          (float)(currentRect.end_row - currentRect.start_row + 1),
-          material.color, normal, uv_rect_convert(material.tile, textures),
-          true
+          chunkSliceBottomLeft, quadDims, material.color, normal, 
+          uv_rect_convert(material.tile, textures), true, 0.f, normal
         ); 
 
         vertices_group_add(verticesGroup, &oppositeVertices, material.renderMode);
